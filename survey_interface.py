@@ -1,84 +1,7 @@
 import streamlit as st
-import random
-import time
-import pandas as pd
-from langchain.llms import Ollama
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+import backend as b
 
-df = pd.read_csv('product_info.csv')
-selected_product = "Fabric Softener"
-features = df.loc[df['Product'] == selected_product, 'Features'].values[0]
-
-llm = Ollama(model="llama2:7b-chat", format='json', temperature=0)
-
-def products_stage(products):
-    template = """
-    Your job is to ask the customer questions. Please ask the customer how they find the {products}.
-    Please also ask the customer to give the {products} a rating out of 5.
-    Example:
-    products: diapers
-    output: How much would you rate the diapers out of 5 and could you give me some feedback on the diapers?
-    """
-    prompt = PromptTemplate(template=template, input_variables=["products"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    return eval(llm_chain.invoke(input={'products': products})['text'])['description']
-
-def check_feedback(feedback):
-    template = """
-    Your job is to classify feedback {feedback} as "Yes" if it sounds like a product feedback from customers,
-    and "No" if it does not sound like a product feedback from customers. 
-    Example:
-    feedback : Fantastic! The new vacuum cleaner's suction power is incredible, making cleaning effortless.
-    output: Yes
-    """
-    prompt = PromptTemplate(template=template, input_variables=["feedback"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    return eval(llm_chain.invoke(input={'feedback': feedback})['text'])
-
-def generate_dict(feedback):
-    system = """
-    Your job is to extract different features of a product from customer feedbacks. 
-    Consider the following format for output, leave response as a python dictionary:
-    # Feature 1: Concise review on feature 1
-    # Feature 2: Concise review on feature 2
-    # Feature 3: Concise review on feature 3
-    # Feature 4: Concise review on feature 4
-
-    Here is the list of features to categorise the feedback into: {features}
-    If features are not mentioned, leave section as empty python string.
-    Provide your output here:
-    """
-    human = """
-    {feedback}
-    """
-    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
-    chain = prompt | llm
-    text = chain.invoke({
-    "feedback": feedback,
-    "features": features,
-    })
-    return eval(text)
-
-def generate_questions(missing_features):
-    template = """
-    Your job is to ask customers questions about the {selected_product} based on the {missing_features}.
-    Please ask one question for each missing feature.
-    """
-    prompt = PromptTemplate(template=template, input_variables=["selected_product", "missing_features"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    questions = llm_chain.invoke(input={'selected_product':selected_product, 'missing_features':missing_features})
-    return eval(questions['text'])
-
-def feedback_stage(feedback):
-    feature_dict = generate_dict(feedback)
-    missing_features = []
-    for f in feature_dict:
-        if feature_dict[f] == "":
-            missing_features.append(f)
-    return generate_questions(missing_features)
+df = b.create_df()
     
 st.title("Survey Interface")
 
@@ -90,6 +13,9 @@ if "messages" not in st.session_state:
 
 if "stage" not in st.session_state:
     st.session_state.stage = "products"
+
+if "rating_boolean" not in st.session_state:
+    st.session_state.rating_boolean = True
     
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -98,43 +24,187 @@ for message in st.session_state.messages:
 
 # Accept user input
 if prompt := st.chat_input("Welcome to the survey interface!"):
+    st.session_state.rating_boolean = True
+
+    if st.session_state.stage == "final_feedback":
+        with st.chat_message("user"):
+            st.markdown(prompt) 
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = "I see! This is the end of the survey! Thank you for your time and effort!"
+                st.write(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+    
+    if st.session_state.stage == "other_feedback":
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.responses.append(prompt)
+
+        # Insert responses into MySQL database
+        data = tuple(st.session_state.responses)
+        b.insert_data(st.session_state.current_product, data, len(st.session_state.responses))
+
+        #Remove the first product in the product list
+        st.session_state.products.pop(0) 
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                if len(st.session_state.products)==0: #No more products in the product list
+                    response = "Before we end the survey, any last feedback?"
+                    st.session_state.stage = "final_feedback"
+                else: #Still got products in the product list
+                    st.session_state.current_product = st.session_state.products[0]
+                    response = f"""Let's move on to the next product, which is {st.session_state.current_product}.
+                    How would you rate {st.session_state.current_product} out of 5? (1 being very unhappy with 
+                    the product and 5 being very happy with the product)"""
+                    st.session_state.stage = "rating"
+                    st.session_state.rating_boolean = False #so that we will not go to the rating stage straight away
+                    
+        st.write(response)       
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+    if st.session_state.stage == "repurchase":
+        with st.chat_message("user"):
+            st.markdown(prompt) 
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.responses.append(prompt)
+        
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = f"I see! Any other feedback for the {st.session_state.current_product}?"
+                st.write(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.stage = "other_feedback" 
+        
+    if st.session_state.stage == "improvements":
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.responses.append(prompt)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = f"""I see! We will take your suggestion into consideration! Next, how likely will you repurchase the
+                {st.session_state.current_product} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
+                repurchase the product)"""
+                st.write(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.stage = "repurchase"      
+            
+    if st.session_state.stage == "more_feedback":
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                current_feature = list(st.session_state.features_questions.keys())[0]
+                st.session_state.features_dict[current_feature] = prompt
+                del st.session_state.features_questions[current_feature]
+                if len(st.session_state.features_questions)==0:
+                    response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product}?"
+                    st.session_state.stage = "improvements"  
+                    st.session_state.features_lst = [word.capitalize() for word in st.session_state.features_lst] #Capitalize the first letter of each feature
+                    for f in st.session_state.features_lst:
+                        st.session_state.responses.append(st.session_state.features_dict[f])
+                else:
+                    response = list(st.session_state.features_questions.values())[0] #Get the first question from the dictionary
+                st.write(response)
+            
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
     
     if st.session_state.stage == "feedback":
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
         # Display user message in chat message container
         with st.chat_message("user"):
             st.markdown(prompt)
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = feedback_stage(prompt)
+                features = df[df["product"]==st.session_state.current_product]["features"].values[0]
+                features_dict = b.generate_dict(prompt, features)
+                if st.session_state.current_product == "fabric_softener":
+                    product = "Fabric Softener" #For some reason, if the input is fabric_softener, the function generate_features_questions will not work
+                    features_questions = b.generate_features_questions(product, features_dict)
+                else:
+                    features_questions = b.generate_features_questions(st.session_state.current_product, features_dict) #features_questions should be a                              dictionary
+                features_lst = features.split(",")
+                features_lst = [f.strip() for f in features_lst]
+                if len(features_questions)==0: #When there are no missing features already
+                    response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product}?"
+                    st.session_state.stage = "improvements"
+                    st.session_state.features_lst = [word.capitalize() for word in st.session_state.features_lst] #Capitalize the first letter of each feature
+                    for f in features_lst:
+                        st.session_state.responses.append(feature_dict[f])
+                else:
+                    response = list(features_questions.values())[0] #Get the first question from the dictionary
+                    if "features_questions" not in st.session_state:
+                        st.session_state.features_questions = []
+                    st.session_state.features_questions = features_questions
+                    if "features_dict" not in st.session_state:
+                        st.session_state.features_dict = []
+                    st.session_state.features_dict = features_dict
+                    if "features_lst" not in st.session_state:
+                        st.session_state.features_lst = []
+                    st.session_state.features_lst = features_lst
+                    st.session_state.stage = "more_feedback"
                 st.write(response)
-            
+      
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-        if check_feedback(prompt) == "Yes":
+        if b.check_feedback(prompt) == "Yes":
             st.session_state.stage = "more_feedback"
-            
-    if st.session_state.stage == "products":
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        # Display user message in chat message container
-        with st.chat_message("user"):
-            st.markdown(prompt)
 
+    if st.session_state.stage == "rating" and st.session_state.rating_boolean:
+        with st.chat_message("user"):
+            st.markdown(prompt) 
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        if "responses" not in st.session_state:
+            st.session_state.responses = []
+        st.session_state.responses = [2, "brandA", prompt] #prompt is the rating, these Will be stored in the database later
+        
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = products_stage(prompt)
+                #response = b.rating_stage(st.session_state.current_product)
+                response = f"Any reasons for giving {st.session_state.current_product} this rating?"
                 st.write(response)
-            
-        # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-        #Change stage
-        st.session_state.stage = "feedback"
+        st.session_state.stage = "feedback"       
+        
+    if st.session_state.stage == "products":
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt) 
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        if "products" not in st.session_state:
+            products_lst = prompt.split(",") #A list of products
+            products_lst = [product.strip() for product in products_lst]
+            st.session_state.products = products_lst
+        if "current_product" not in st.session_state:
+            st.session_state.current_product = st.session_state.products[0]
+        
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = f"""Let's start with the {st.session_state.current_product}! How would you rate {st.session_state.current_product} out of 5? (1
+                being very unhappy with the product and 5 being very happy with the product)"""
+                st.write(response)
+        st.session_state.messages.append({"role": "assistant", "content": response}) 
+        st.session_state.stage = "rating"
 
 st.write(st.session_state)
+
+
         
         
