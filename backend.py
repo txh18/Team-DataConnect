@@ -1,13 +1,13 @@
 import pandas as pd
 import mysql.connector
-from langchain.llms import Ollama
+from langchain_community.llms import Ollama
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # Initialise an llm instance
-llm = Ollama(model="llama2:7b-chat", format='json', temperature=0)
+llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
 
 # Connect to the MySQL server and create dataframe
 def create_df():
