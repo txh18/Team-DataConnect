@@ -9,6 +9,61 @@ from langchain_core.output_parsers import StrOutputParser
 # Initialise an llm instance
 llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
 
+# Create tables for each product in MySQL from csv file
+def csv_to_mysql():
+    # Connect to the MySQL server
+    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
+                                host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+                                database='dsa3101db')
+
+    # Create a cursor object
+    cursor = cnx.cursor()
+
+    # Define the CREATE TABLE statement
+    create_surveyee_table = """
+    CREATE TABLE IF NOT EXISTS surveyee (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        age VARCHAR(20) NOT NULL,
+        gender VARCHAR(20) NOT NULL,
+        other_feedback VARCHAR(1000)
+    )
+    """
+    # Execute the CREATE TABLE statement
+    cursor.execute(create_surveyee_table)
+
+    # Commit the changes
+    cnx.commit()
+
+    # Read csv table for product types and its corresponding features
+    df = pd.read_csv('product_info.csv')
+    product_types = df.iloc[:, 0].tolist()
+
+    # Define and execute the CREATE TABLE statement for all product types
+    for i in range(len(product_types)):
+        product = product_types[i]
+        product = product.lower().replace("-"," ").replace(" ","_").replace("&","and")
+        features = df.iloc[:, 1][i].split(', ')
+        ft = ''
+        for j in features:
+            ft = ft +'\t' + j.lower().replace(" ","_") + ' VARCHAR(1000), \n'
+        create_product_table = """
+        CREATE TABLE IF NOT EXISTS """ + product + """ (
+            id INT,
+            brand VARCHAR(255) NOT NULL,
+            rating INT NOT NULL,\n""" + ft + """\timprovements VARCHAR(1000),
+            repurchase VARCHAR(1000),
+            other_feedback VARCHAR(1000)
+        )
+        """
+        cursor.execute(create_product_table)
+
+    # Commit the changes
+    cnx.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    cnx.close()
+
 # Connect to the MySQL server and create dataframe
 def create_df():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
