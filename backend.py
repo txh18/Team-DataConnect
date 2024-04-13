@@ -24,12 +24,21 @@ def csv_to_mysql():
     CREATE TABLE IF NOT EXISTS surveyee (
         id INT AUTO_INCREMENT PRIMARY KEY,
         age VARCHAR(20) NOT NULL,
-        gender VARCHAR(20) NOT NULL,
-        other_feedback VARCHAR(1000)
+        gender VARCHAR(20) NOT NULL
     )
     """
     # Execute the CREATE TABLE statement
     cursor.execute(create_surveyee_table)
+
+    # Create a table for other_feedback
+    create_feedback_table = """
+    CREATE TABLE IF NOT EXISTS feeback (
+        id INT,
+        other_feedback VARCHAR(1000)
+    )
+    """
+    # Execute the CREATE TABLE statement
+    cursor.execute(create_feedback_table)
 
     # Commit the changes
     cnx.commit()
