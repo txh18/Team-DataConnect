@@ -78,9 +78,8 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         
         # Insert response into MySQL
         st.session_state.responses.append(prompt)
-        row = b.get_row()
-        data = tuple(row,st.session_state.responses)
-        b.insert_data("feedback", data, len(st.session_state.responses)+1)
+        data = tuple(prompt)
+        b.insert_data("feedback", data, len(data))
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = "I see! This is the end of the survey! Thank you for your time and effort!"
@@ -95,9 +94,8 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         st.session_state.responses.append(prompt)
 
         # Insert responses into MySQL database
-        row = b.get_row()
-        data = tuple(row,st.session_state.responses)
-        b.insert_data(st.session_state.current_product, data, len(st.session_state.responses)+1)
+        data = tuple(st.session_state.responses)
+        b.insert_data(st.session_state.current_product, data, len(data))
 
         #Remove the first product in the product list
         st.session_state.products.pop(0) 
@@ -223,7 +221,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         
         if "responses" not in st.session_state:
             st.session_state.responses = []
-        st.session_state.responses = [2, "brandA", st.session_state.radio] #prompt is the rating, these Will be stored in the database later
+        st.session_state.responses = ["brandA", st.session_state.radio] #prompt is the rating, these Will be stored in the database later
         
         # Display assistant response in chat message container
         with st.chat_message("assistant"):

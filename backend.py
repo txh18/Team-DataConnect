@@ -130,18 +130,6 @@ def insert_surveyee(data):
     cursor.close()
     cnx.close()
 
-# Insert data into MySQL table
-def insert_data(table_name, data, num):
-    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101db')
-    cursor = cnx.cursor()
-    query = "INSERT INTO " + table_name + " VALUES (" + "%s,"*(num-1) + "%s)"
-    cursor.execute(query, data)
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-
 # Get latest row number from MySQL
 def get_row():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
@@ -153,7 +141,20 @@ def get_row():
     row = cursor.fetchone()
     cursor.close()
     cnx.close()
-    return row
+    return str(row[0])
+
+# Insert data into MySQL table
+def insert_data(table_name, data, num):
+    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
+        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        database='dsa3101db')
+    cursor = cnx.cursor()
+    row = get_row()
+    query = "INSERT INTO " + table_name + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
+    cursor.execute(query, data)
+    cnx.commit()
+    cursor.close()
+    cnx.close()
 
 def rating_stage(product):
     template = """
