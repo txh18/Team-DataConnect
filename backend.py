@@ -11,12 +11,12 @@ llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="htt
 
 # Get the list of brands
 def get_brands():
-    df = pd.read_csv("Brands_Products.csv")
+    df = pd.read_csv("brands_products.csv")
     return list(df["Brand"].unique())
 
 # Get the list of products by brand
 def get_pdts_by_brand():
-    df = pd.read_csv("Brands_Products.csv")
+    df = pd.read_csv("brands_products.csv")
     brands_lst = list(df["Brand"].unique())
     brands_products_lst = []
     for brand in brands_lst:
