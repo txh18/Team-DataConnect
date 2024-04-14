@@ -166,18 +166,6 @@ def rating_stage(product):
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     return eval(llm_chain.invoke(input={'product': product})['text'])['description']
 
-def check_feedback(feedback):
-    template = """
-    Your job is to classify feedback {feedback} as "Yes" if it sounds like a product feedback from customers,
-    and "No" if it does not sound like a product feedback from customers. 
-    Example:
-    feedback : Fantastic! The new vacuum cleaner's suction power is incredible, making cleaning effortless.
-    output: Yes
-    """
-    prompt = PromptTemplate(template=template, input_variables=["feedback"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    return eval(llm_chain.invoke(input={'feedback': feedback})['text'])
-
 def generate_dict(feedback, features):
     system = """
     Your job is to extract different features of a product from customer feedbacks. 

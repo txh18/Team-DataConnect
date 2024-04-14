@@ -214,8 +214,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
       
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-        if b.check_feedback(prompt) == "Yes":
-            st.session_state.stage = "more_feedback"
+        st.session_state.stage = "more_feedback"
 
     if st.session_state.stage == "rating" and st.session_state.rating_boolean:
         with st.chat_message("user"):
