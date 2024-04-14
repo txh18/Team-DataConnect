@@ -120,6 +120,19 @@ def insert_data(table_name, data, num):
     cursor.close()
     cnx.close()
 
+# Get latest row number from MySQL
+def get_row():
+    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
+        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        database='dsa3101db')
+    cursor = cnx.cursor()
+    query = "SELECT id FROM surveyee ORDER BY id DESC LIMIT 1"
+    cursor.execute(query)
+    row = cursor.fetchone()
+    cursor.close()
+    cnx.close()
+    return row
+
 def rating_stage(product):
     template = """
     Your job is to ask the customer questions. Please ask the customer how they find the {product}.

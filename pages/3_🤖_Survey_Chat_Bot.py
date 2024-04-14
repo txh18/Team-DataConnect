@@ -76,6 +76,11 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
             st.markdown(prompt) 
         st.session_state.messages.append({"role": "user", "content": prompt})
         
+        # Insert response into MySQL
+        st.session_state.responses.append(prompt)
+        row = get_row()
+        data = tuple(row,st.session_state.responses)
+        b.insert_data("feedback", data, len(st.session_state.responses)+1)
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = "I see! This is the end of the survey! Thank you for your time and effort!"
@@ -90,8 +95,9 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         st.session_state.responses.append(prompt)
 
         # Insert responses into MySQL database
-        data = tuple(st.session_state.responses)
-        b.insert_data(st.session_state.current_product, data, len(st.session_state.responses))
+        row = get_row()
+        data = tuple(row,st.session_state.responses)
+        b.insert_data(st.session_state.current_product, data, len(st.session_state.responses)+1)
 
         #Remove the first product in the product list
         st.session_state.products.pop(0) 
