@@ -46,10 +46,6 @@ gender = st.selectbox('What is your gender?',
                       ('Male', 'Female', 'Other', 'Prefer not to say'))
 st.write('You selected:', gender)
 
-# Insert responses into MySQL database
-data = tuple([name, age, gender, 'NA'])
-b.insert_data('surveyee', data, len(data))
-
 product_names = ['2_in_1_shampoo_and_conditioner', 'air_freshener', 'car_freshener',
                  'conditioner', 'detergent_pods', 'diapers', 'dishwashing_liquid', 'dryer_sheets', 
                  'electric_toothbrush', 'fabric_softener', 'fabric_spray', 'facial_cleanser', 'floss',
@@ -73,13 +69,13 @@ with st.container():
         n = brand_names.index(brand)
         if n<4: 
             with c1:
-                checkboxes.append(st.checkbox(brand, st.image('images\\' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
         elif n<7:
             with c2: 
-                checkboxes.append(st.checkbox(brand, st.image('images\\' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
         else: 
             with c3: 
-                checkboxes.append(st.checkbox(brand, st.image('images\\' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
 
 # list of products for every brand
 pdts_by_brand = [['shampoo', 'conditioner', '2_in_1_shampoo_and_conditioner'], 
@@ -100,7 +96,11 @@ for c in checkboxes:
 selected = st.multiselect('Select Products:', options, max_selections = 3)
 st.write('Selected products:', ', '.join(selected))
 
-if st.button('Ready for a short quiz game?'): st.switch_page('pages/2_📝_Mini_Quiz.py')
+if st.button('Ready for a short quiz game?'): 
+    # Insert responses into MySQL database
+    data = tuple([age, gender])
+    b.insert_surveyee(data)
+    st.switch_page('pages/2_📝_Mini_Quiz.py')
 
 
 

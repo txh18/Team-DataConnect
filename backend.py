@@ -96,6 +96,18 @@ def create_df():
     cnx.close()
     return df
 
+# Insert data into MySQL surveyee table
+def insert_surveyee(data):
+    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
+        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        database='dsa3101db')
+    cursor = cnx.cursor()
+    query = "INSERT INTO surveyee (age,gender) VALUES (%s,%s)"
+    cursor.execute(query, data)
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+
 # Insert data into MySQL table
 def insert_data(table_name, data, num):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
