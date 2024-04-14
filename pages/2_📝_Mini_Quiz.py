@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import base64
+import time
 
 products = [
     ("Tide", "🧺"),
@@ -90,6 +91,7 @@ if answer:
             del st.session_state["question"]
             del st.session_state["question_number"]
             del st.session_state["correct_answer"]
+            time.sleep(2)
             st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
     else:
         st.write("GAME OVER")
@@ -100,5 +102,6 @@ if answer:
         del st.session_state["question"]
         del st.session_state["question_number"]
         del st.session_state["correct_answer"]
+        time.sleep(2)
         st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
 
