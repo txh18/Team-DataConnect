@@ -47,8 +47,10 @@ gender = st.selectbox('What is your gender?',
 st.write('You selected:', gender)
 
 brand_names = b.get_brands()
-brand_logos = ['Pantene.png', 'Olay.png', 'ambi-pur.png', 'Safeguard.png', 'SK-II.png', 'febreze.png','Oral-B.png',
-               'Vicks.png', 'Pampers.png', 'head & shoulders.png']
+brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png', 'Charmin.png', 
+               'Always.jpg', 'This_is_L..jpg', 'Gillette.png', 'Venus.png', 'Pantene.png', 
+               'head & shoulders.png', 'febreze.png', 'ambi-pur.png', 'Dawn.jpg', 'Oral-B.png',
+               'Crest.jpg', 'Olay.png', 'Native.png']
 
 selected = []
 checkboxes = []
@@ -59,10 +61,10 @@ c1, c2, c3 = st.columns(3)
 with st.container():
     for brand in brand_names:
         n = brand_names.index(brand)
-        if n<4: 
+        if n<7: 
             with c1:
                 checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
-        elif n<7:
+        elif n<13:
             with c2: 
                 checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
         else: 
@@ -85,7 +87,7 @@ selected = st.multiselect('Select Products:', options, max_selections = 3)
 st.write('Selected products:', ', '.join(selected))
 
 if st.button('Ready for a short quiz game?'): 
-    # Insert responses into MySQL database
+    # Insert consumer profile information into MySQL database
     data = tuple([age, gender])
     b.insert_surveyee(data)
     st.switch_page('pages/2_📝_Mini_Quiz.py')

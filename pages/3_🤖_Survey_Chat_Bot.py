@@ -197,7 +197,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                     st.session_state.stage = "improvements"
                     st.session_state.features_lst = [word.capitalize() for word in st.session_state.features_lst] #Capitalize the first letter of each feature
                     for f in features_lst:
-                        st.session_state.responses.append(feature_dict[f])
+                        st.session_state.responses.append(features_dict[f])
                 else:
                     response = list(features_questions.values())[0] #Get the first question from the dictionary
                     if "features_questions" not in st.session_state:
