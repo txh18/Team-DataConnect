@@ -9,6 +9,27 @@ from langchain_core.output_parsers import StrOutputParser
 # Initialise an llm instance
 llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
 
+# Get the list of brands
+def get_brands():
+    df = pd.read_csv("Brands_Products.csv")
+    return list(df["Brand"].unique())
+
+# Get the list of products by brand
+def get_pdts_by_brand():
+    df = pd.read_csv("Brands_Products.csv")
+    brands_lst = list(df["Brand"].unique())
+    brands_products_lst = []
+    for brand in brands_lst:
+        brand_subset = df[df["Brand"]==brand]
+        products_lst = list(brand_subset["Product_Category"].unique())
+        products_lst = [product.strip() for product in products_lst]
+        new_products_lst = []
+        for product in products_lst:
+            new_products_lst.append(product.lower().replace("-"," ").replace(" ","_").replace("&","and"))
+        brands_products_lst.append(new_products_lst)
+    return brands_products_lst
+
+
 # Create tables for each product in MySQL from csv file
 def csv_to_mysql():
     # Connect to the MySQL server

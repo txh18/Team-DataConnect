@@ -46,15 +46,7 @@ gender = st.selectbox('What is your gender?',
                       ('Male', 'Female', 'Other', 'Prefer not to say'))
 st.write('You selected:', gender)
 
-product_names = ['2_in_1_shampoo_and_conditioner', 'air_freshener', 'car_freshener',
-                 'conditioner', 'detergent_pods', 'diapers', 'dishwashing_liquid', 'dryer_sheets', 
-                 'electric_toothbrush', 'fabric_softener', 'fabric_spray', 'facial_cleanser', 'floss',
-                 'hand_soap', 'liners', 'liquid_detergent', 'menstral pads', 'moisturizer', 'mouthwash',
-                 'paper_napkin', 'paper_towel', 'powder_detergent', 'razor', 'scent_beads', 'shampoo',
-                 'shaving_gel', 'toilet_paper', 'toothbrush', 'wipes']
-
-brand_names = ['Pantene', 'Olay', 'ambi-pur', 'Safeguard', 'SK-II', 'febreze','Oral-B',
-               'Vicks', 'Pampers', 'head & shoulders']
+brand_names = b.get_brands()
 brand_logos = ['Pantene.png', 'Olay.png', 'ambi-pur.png', 'Safeguard.png', 'SK-II.png', 'febreze.png','Oral-B.png',
                'Vicks.png', 'Pampers.png', 'head & shoulders.png']
 
@@ -69,20 +61,16 @@ with st.container():
         n = brand_names.index(brand)
         if n<4: 
             with c1:
-                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
         elif n<7:
             with c2: 
-                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
         else: 
             with c3: 
-                checkboxes.append(st.checkbox(brand, st.image('/app/images/' +  brand_logos[n])))
+                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
 
 # list of products for every brand
-pdts_by_brand = [['shampoo', 'conditioner', '2_in_1_shampoo_and_conditioner'], 
-                 ['moisturizer'], ['air_freshener', 'car_freshener'], 
-                 ['hand_soap', 'liquid_detergent'], ['moisturizer'], ['air_freshener', 'car_freshener'],
-                 ['toothbrush', 'floss', 'mouthwash'],
-               ['Vicks'], ['diapers'], ['shampoo', 'conditioner']]
+pdts_by_brand = b.get_pdts_by_brand()
 
 options = []
 for c in checkboxes:
