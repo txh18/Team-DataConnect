@@ -78,7 +78,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         
         # Insert response into MySQL
         st.session_state.responses.append(prompt)
-        row = get_row()
+        row = b.get_row()
         data = tuple(row,st.session_state.responses)
         b.insert_data("feedback", data, len(st.session_state.responses)+1)
         with st.chat_message("assistant"):
@@ -95,7 +95,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         st.session_state.responses.append(prompt)
 
         # Insert responses into MySQL database
-        row = get_row()
+        row = b.get_row()
         data = tuple(row,st.session_state.responses)
         b.insert_data(st.session_state.current_product, data, len(st.session_state.responses)+1)
 
@@ -184,14 +184,14 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 features = df[df["product"]==st.session_state.current_product]["features"].values[0]
-                features_dict = b.generate_dict(prompt, features)
+                features_lst = features.split(",")
+                features_lst = [f.strip() for f in features_lst]
+                features_dict = b.generate_dict(prompt, features_lst)
                 if st.session_state.current_product == "fabric_softener":
                     product = "Fabric Softener" #For some reason, if the input is fabric_softener, the function generate_features_questions will not work
                     features_questions = b.generate_features_questions(product, features_dict)
                 else:
                     features_questions = b.generate_features_questions(st.session_state.current_product, features_dict) #features_questions should be a                              dictionary
-                features_lst = features.split(",")
-                features_lst = [f.strip() for f in features_lst]
                 if len(features_questions)==0: #When there are no missing features already
                     response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product}?"
                     st.session_state.stage = "improvements"

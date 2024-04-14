@@ -1,8 +1,9 @@
 import pandas as pd
 import mysql.connector
 from langchain_community.llms import Ollama
+from langchain_experimental.llms.ollama_functions import OllamaFunctions
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain.chains import LLMChain, create_extraction_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -166,29 +167,34 @@ def rating_stage(product):
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     return eval(llm_chain.invoke(input={'product': product})['text'])['description']
 
-def generate_dict(feedback, features):
-    system = """
-    Your job is to extract different features of a product from customer feedbacks. 
-    Consider the following format for output, leave response as a python dictionary:
-    # Feature 1: Concise review on feature 1
-    # Feature 2: Concise review on feature 2
-    # Feature 3: Concise review on feature 3
-    # Feature 4: Concise review on feature 4
-
-    Here is the list of features to categorise the feedback into: {features}
-    If features are not mentioned, leave section as empty python string.
-    Provide your output here:
-    """
-    human = """
-    {feedback}
-    """
-    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
-    chain = prompt | llm
-    text = chain.invoke({
-    "feedback": feedback,
-    "features": features,
-    })
-    return eval(text)
+def generate_dict(feedback, features_lst):
+    llm = OllamaFunctions(model="mistral", temperature=0)
+    def create_schema(features_lst):
+        schema = {"properties": {}}
+        for feature in features_lst:
+            schema["properties"][feature] = {"type": "string"}
+        schema["required"] = features_lst
+        return schema
+    schema = create_schema(features_lst)    
+    chain = create_extraction_chain(schema=schema, llm=llm)
+    result = chain.run(feedback) #Convert from a string to a list
+    def modify_outputs(features_lst, result):
+        new_result = {}
+        for dic in result:
+            for feature in dic:
+                if feature not in new_result:
+                    if type(dic[feature])==dict:
+                        dic[feature] = list(dic[feature].values())[0]
+                    if dic[feature]=="not mentioned in the passage" or dic[feature]==None:
+                        new_result[feature] = ""
+                    else:
+                        new_result[feature] = dic[feature]
+        for feature in features_lst:
+            if feature not in new_result:
+                new_result[feature] = ""
+        return new_result
+    dic = modify_outputs(features_lst, result)
+    return dic
 
 def generate_questions(product, missing_features):
     template = """
