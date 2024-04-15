@@ -76,7 +76,8 @@ for brand in brand_names:
     with st.container(border = True):
         rownum = n//3
         with rows[rownum][n%3]:
-            checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
+            box = st.checkbox(brand, False, st.image('images/' +  brand_logos[n]))
+            checkboxes.append(box)
 
 # list of products for every brand
 pdts_by_brand = b.get_pdts_by_brand()
