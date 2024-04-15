@@ -78,13 +78,21 @@ options = []
 for c in checkboxes:
     if c:
         pos = checkboxes.index(c)
+        brand = brand_names[pos]
         pdt_ls = pdts_by_brand[pos]
         for item in pdt_ls:
-            if item not in options: options.append(item)
+            options.append(f"{brand}: {item}")
         checkboxes[pos] = False
 
 selected = st.multiselect('Select Products:', options, max_selections = 3)
 st.write('Selected products:', ', '.join(selected))
+st.write("Before we proceed to the survey questions, let's play a short quiz game!")
+
+if "brand_product" not in st.session_state:
+    st.session_state["brand_product"] = []
+st.session_state["brand_product"] = selected
+
+st.write(st.session_state)
 
 if st.button('Ready for a short quiz game?'): 
     # Insert consumer profile information into MySQL database

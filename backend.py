@@ -8,7 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # Initialise an llm instance
-llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
+#llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
 
 # Get the list of brands
 def get_brands():
@@ -130,7 +130,7 @@ def insert_surveyee(data):
     cursor.close()
     cnx.close()
 
-# Insert data into MySQL table
+# Insert data into MySQL product tables
 def insert_data(table_name, data, num):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
@@ -156,6 +156,7 @@ def get_row():
     return row
 
 def rating_stage(product):
+    llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
     template = """
     Your job is to ask the customer questions. Please ask the customer how they find the {product}.
     Please also ask the customer to give the {product} a rating out of 5.
@@ -197,6 +198,7 @@ def generate_dict(feedback, features_lst):
     return dic
 
 def generate_questions(product, missing_features):
+    llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
     template = """
     Your job is to ask customers questions about the {selected_product} based on the {missing_features}.
     Please ask one question for each missing feature.
