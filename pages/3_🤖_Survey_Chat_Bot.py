@@ -60,7 +60,7 @@ if "rating_boolean" not in st.session_state:
 
 # for storing rating from widget in chat message 
 if "radio" not in st.session_state:
-    st.session_state.radio = 1    
+    st.session_state.radio = None    
     
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -112,7 +112,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                     response = f"""Let's move on to the next product, which is {st.session_state.current_product}.
                     How would you rate {st.session_state.current_product} out of 5? (1 being very unhappy with 
                     the product and 5 being very happy with the product)"""
-                    st.radio("Rating", [1,2,3,4,5], horizontal=True, key="radio")
+                    st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
                     st.session_state.stage = "rating"
                     st.session_state.rating_boolean = False #so that we will not go to the rating stage straight away
                     
@@ -145,7 +145,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 {st.session_state.current_product} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
                 repurchase the product)"""
                 st.write(response)
-                st.radio("Rating", [1,2,3,4,5], horizontal=True, key="radio")
+                st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "repurchase"      
             
@@ -255,12 +255,12 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 response = f"""Let's start with the {st.session_state.current_product}! How would you rate {st.session_state.current_product} out of 5? (1
                 being very unhappy with the product and 5 being very happy with the product)"""
                 st.write(response)
-                st.radio("Rating", [1,2,3,4,5], horizontal=True, key="radio")
+                st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response}) 
         st.session_state.stage = "rating"
 
 # uncomment the following line to view session state on every response in app
-#st.write(st.session_state) 
+st.write(st.session_state) 
 
 
         
