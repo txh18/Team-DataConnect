@@ -233,12 +233,14 @@ def generate_features_questions(product, feature_dict):
 
 def is_feedback(feedback):
     template = """
-    Determine if the following feedback {feedback} sounds like a product feedback. Answer "Yes", if is sounds like a proudct feedback, and if it does not sound like a product feedback, answer "No". 
+    Determine if the following feedback {feedback} sounds like a product feedback. Answer one word "Yes", if is sounds like a product feedback, answer one word "No" if it does not sound like a feedback about a product.
     Example:
     feedback : Fantastic! The new vacuum cleaner's suction power is incredible, making cleaning effortless.
     output: Yes
     Example:
     feedback: Hello, I'm fine how about you?
+    output: No
+    feedback: NA
     output: No
     """
     llm = OllamaFunctions(model="mistral", temperature=0)
@@ -251,8 +253,22 @@ def is_feedback(feedback):
 
 def responding_feedback(feedback):
     template = """
-    Determine if the following feedback {feedback} sounds like a feedback. 
-    If it sounds like a feedback, give a short response to this feedback. 
+    Determine if the following feedback {feedback} sounds like a product feedback. 
+    If it sounds like a product feedback, give a short response to this feedback. 
+    Respond positively to positive feedback. 
+    If feedback is negative, say that you are sorry and will try to improve that part of the product in the future.
+    Do not offer help such as : I'm here to help answer any questions you have about the feedback.
+    Do not ask for additional input and do not ask for additional feedback.
+    
+    Example:
+    feedback: it absorbs well, big enough, but can be stronger so that it does not tear so easily
+    output: I'm glad that the product size and absorbance met your expectations. I'm sorry to hear that the strength of the product did not meet your expectations, we will work on improving our product.
+    Example:
+    feedback: I enjoyed using the conditioner. It smelled nice and it helped soften my hair.
+    output: Thank you for sharing your positive experience with the conditioner! I'm glad to hear that it not only smelled nice but also helped soften your hair.
+    Example: 
+    feedback: it was good, could be cheaper, smell is normal, cleans decently
+    output: I'm glad that you enjoyed using the product. I understand your concerns on the price, your feedback will be taken into consideration.
     """
     llm = OllamaFunctions(model="mistral", temperature=0)
     prompt = PromptTemplate(input_variables=["feedback"],
