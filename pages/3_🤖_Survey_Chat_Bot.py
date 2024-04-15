@@ -76,7 +76,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         # Insert response into MySQL
-        data = tuple(prompt)
+        data = tuple([prompt])
         b.insert_data("feedback", data, len(data))
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
@@ -102,6 +102,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
             with st.spinner("Thinking..."):
                 if len(st.session_state.brand_product)==0: # No more products in the brand_product list
                     response = "Before we end the survey, any last feedback?"
+                    st.write(response)  
                     st.session_state.stage = "final_feedback"
                 else: #Still got products in the brand_product list
                     st.session_state.current_product = st.session_state.brand_product[0]
@@ -109,11 +110,11 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                     from {st.session_state.current_product[0]}.
                     How would you rate {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
                     the product and 5 being very happy with the product)"""
+                    st.write(response)
                     st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
                     st.session_state.stage = "rating"
                     st.session_state.rating_boolean = False #so that we will not go to the rating stage straight away
-                    
-        st.write(response)       
+                         
         st.session_state.messages.append({"role": "assistant", "content": response})
 
     if st.session_state.stage == "repurchase":
@@ -142,7 +143,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
                 repurchase the product)"""
                 st.write(response)
-                st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Repurchase Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "repurchase"      
             
@@ -224,7 +225,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 st.write(react(st.session_state.radio))
-                response = f"Any reasons for giving {st.session_state.current_product[1]} from {st.session_state.current_product[0]} this rating?"
+                response = f"Any reasons for giving the {st.session_state.current_product[1]} from {st.session_state.current_product[0]} this rating?"
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "feedback"       
@@ -251,7 +252,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 response = f"""Let's start with the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
                 being very unhappy with the product and 5 being very happy with the product)"""
                 st.write(response)
-                st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Product Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response}) 
         st.session_state.stage = "rating"
 
