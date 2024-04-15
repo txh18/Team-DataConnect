@@ -35,15 +35,25 @@ autoplay_audio("game_music.mp3")
 
 st.title("Consumer Profile")
 
-name = st.text_input(
-    "What is your name?"
-    )
-st.write('Your name:', name)
+# name = st.text_input(
+#     "What is your name?"
+#     )
+# st.write('Your name:', name)
 
-age = st.slider("How old are you?", 0, 100)
+check = 0
 
-gender = st.selectbox('What is your gender?', 
-                      ('Male', 'Female', 'Other', 'Prefer not to say'))
+age = st.slider("1. How old are you?", 0, 100)
+if age != 0: check += 1
+else: st.error('This is a required field')
+st.write('You selected:', age, 'Years Old')
+
+gender = st.selectbox('2. What is your gender?', 
+                      ('select', 'Male', 'Female', 'Other', 'Prefer not to say'))
+
+if gender == 'select': 
+    st.error('This is a required field')
+else: check += 1
+
 st.write('You selected:', gender)
 
 brand_names = b.get_brands()
@@ -54,22 +64,20 @@ brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png',
 
 selected = []
 checkboxes = []
-st.write('Please select the brands and products you would like to review.')
+st.write('3. Please select the brands and products you would like to review. (Maximum of 3)')
 st.write('Select brands:')
 # putting checkboxes w logos as columns
-c1, c2, c3 = st.columns(3)
-with st.container():
-    for brand in brand_names:
-        n = brand_names.index(brand)
-        if n<7: 
-            with c1:
-                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
-        elif n<13:
-            with c2: 
-                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
-        else: 
-            with c3: 
-                checkboxes.append(st.checkbox(brand, st.image('images/' +  brand_logos[n])))
+rows = []
+for r in range(7):
+    rows.append(st.columns(3))
+
+for brand in brand_names:
+    n = brand_names.index(brand)
+    with st.container(border = True):
+        rownum = n//3
+        with rows[rownum][n%3]:
+            box = st.checkbox(brand, False, st.image('images/' +  brand_logos[n]))
+            checkboxes.append(box)
 
 # list of products for every brand
 pdts_by_brand = b.get_pdts_by_brand()
@@ -85,6 +93,11 @@ for c in checkboxes:
         checkboxes[pos] = False
 
 selected = st.multiselect('Select Products:', options, max_selections = 3)
+
+if len(selected) != 0:
+    check += 1 
+else: st.error('Please select up to 3 products to review')
+
 st.write('Selected products:', ', '.join(selected))
 st.write("Before we proceed to the survey questions, let's play a short quiz game!")
 
@@ -94,7 +107,12 @@ st.session_state["brand_product"] = selected
 
 st.write(st.session_state)
 
-if st.button('Ready for a short quiz game?'): 
+if check < 3: 
+    cont = st.button('Please fill up all fields', disabled = True)
+else:
+    st.write("Before we proceed to the survey questions, let's play a short quiz!")
+    cont = st.button('Click to proceed')
+if cont: 
     # Insert consumer profile information into MySQL database
     data = tuple([age, gender])
     b.insert_surveyee(data)
