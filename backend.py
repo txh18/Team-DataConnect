@@ -130,18 +130,6 @@ def insert_surveyee(data):
     cursor.close()
     cnx.close()
 
-# Insert data into MySQL table
-def insert_data(table_name, data, num):
-    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101db')
-    cursor = cnx.cursor()
-    query = "INSERT INTO " + table_name + " VALUES (" + "%s,"*(num-1) + "%s)"
-    cursor.execute(query, data)
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-
 # Get latest row number from MySQL
 def get_row():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
@@ -153,7 +141,20 @@ def get_row():
     row = cursor.fetchone()
     cursor.close()
     cnx.close()
-    return row
+    return str(row[0])
+
+# Insert data into MySQL table
+def insert_data(table_name, data, num):
+    cnx = mysql.connector.connect(user='admin', password='dsa3101data',
+        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        database='dsa3101db')
+    cursor = cnx.cursor()
+    row = get_row()
+    query = "INSERT INTO " + table_name + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
+    cursor.execute(query, data)
+    cnx.commit()
+    cursor.close()
+    cnx.close()
 
 def rating_stage(product):
     template = """
@@ -196,19 +197,77 @@ def generate_dict(feedback, features_lst):
     dic = modify_outputs(features_lst, result)
     return dic
 
-def generate_questions(product, missing_features):
-    template = """
-    Your job is to ask customers questions about the {selected_product} based on the {missing_features}.
-    Please ask one question for each missing feature.
-    """
-    prompt = PromptTemplate(template=template, input_variables=["selected_product", "missing_features"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    questions = llm_chain.invoke(input={'selected_product':product, 'missing_features': missing_features})
-    return eval(questions['text'])
 
-def generate_features_questions(product, feature_dict):
+def get_missing_features(feature_dict):
     missing_features = []
     for f in feature_dict:
         if feature_dict[f] == "":
             missing_features.append(f)
-    return generate_questions(product, missing_features)
+    return(missing_features)
+
+
+def generate_questions(product, missing_feature):
+    template = """
+    Your job is to ask a question to get the customer to review about the {missing_feature} of the {selected_product}.
+    
+    Example:
+    missing feature: price
+    product: shampoo
+    output: Do you think that the price that you paid for the shampoo is worth it? 
+    """
+    llm = OllamaFunctions(model="mistral", temperature=0)
+    prompt = PromptTemplate(template=template, input_variables=["selected_product", "missing_feature"])
+    llm_chain = LLMChain(llm=llm, prompt=prompt)
+    questions = llm_chain({'selected_product':product, 'missing_feature': missing_feature})
+    return questions['text']
+
+def generate_features_questions(product, feature_dict):
+    missing_features = get_missing_features(feature_dict)
+    output_dict = {}
+    for i in missing_features:
+        ques = generate_questions(product, i)
+        output_dict[i] = ques
+    return(output_dict)
+
+
+def is_feedback(feedback):
+    template = """
+    Determine if the following feedback {feedback} sounds like a product feedback. Answer "Yes", if is sounds like a proudct feedback, and if it does not sound like a product feedback, answer "No". 
+    Example:
+    feedback : Fantastic! The new vacuum cleaner's suction power is incredible, making cleaning effortless.
+    output: Yes
+    Example:
+    feedback: Hello, I'm fine how about you?
+    output: No
+    """
+    llm = OllamaFunctions(model="mistral", temperature=0)
+    prompt = PromptTemplate(input_variables=["feedback"],
+                        template = template)
+    chain = LLMChain(llm=llm, prompt=prompt)
+    answer = chain.run(feedback)
+    return(answer)
+
+
+def responding_feedback(feedback):
+    template = """
+    Determine if the following feedback {feedback} sounds like a feedback. 
+    If it sounds like a feedback, give a short response to this feedback. 
+    """
+    llm = OllamaFunctions(model="mistral", temperature=0)
+    prompt = PromptTemplate(input_variables=["feedback"],
+                        template = template)
+    chain = LLMChain(llm=llm, prompt=prompt)
+    answer = chain.run(feedback)
+    return(answer)
+
+
+def checking_feedback(feedback):
+    fb = is_feedback(feedback)
+    answer = {}
+    if fb == "No":
+        out = "Your feedback does not seem to be providing a review about our product. Could you provide another feedback?"
+        answer[fb] = out
+    else:
+        out = responding_feedback(feedback)
+        answer[fb] = out
+    return(answer)
