@@ -3,6 +3,7 @@ import mysql
 import backend as b
 import base64
 
+
 # To set background
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -41,6 +42,21 @@ st.title("Consumer Profile")
 # st.write('Your name:', name)
 
 check = 0
+
+slider_thumb_color_css = """
+<style>
+div.st-emotion-cache-szxv3m.ew7r33m3[role="slider"] {
+    background-color: #20244c; /* Change this hex color to your desired thumb color */
+}
+div[data-testid="stThumbValue"] {
+    color: #FFFFFF; /* Change this hex color to your desired font color */
+}
+
+</style>
+"""
+
+# Inject custom CSS with markdown
+st.markdown(slider_thumb_color_css, unsafe_allow_html=True)
 
 age = st.slider("1. How old are you?", 0, 100)
 if age != 0: check += 1
