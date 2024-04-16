@@ -1,7 +1,9 @@
 import streamlit as st
+from streamlit_lottie import st_lottie
 import mysql
 import backend as b
 import base64
+import time
 
 
 # To set background
@@ -34,12 +36,7 @@ def autoplay_audio(file_path: str):
 autoplay_audio("game_music.mp3")
 
 
-st.title("Consumer Profile")
-
-# name = st.text_input(
-#     "What is your name?"
-#     )
-# st.write('Your name:', name)
+st.title("Stage 🥇: Consumer Profile")
 
 check = 0
 
@@ -57,12 +54,23 @@ div[data-testid="stThumbValue"] {
 
 st.markdown(slider_thumb_color_css, unsafe_allow_html=True)
 
-age = st.slider("1. How old are you?", 0, 100)
+# Formatting and displaying lottie
+def auto_lottie(url):
+    st_lottie(url,
+                height=170,
+                width=140,
+                speed=1,
+                loop=True)
+
+st.subheader("Surveyee Information 👤")
+st.write("1. How old are you?")
+age = st.slider("Age", 0, 100)
 if age != 0: check += 1
 else: st.error('This is a required field')
 st.write('You selected:', age, 'Years Old')
 
-gender = st.selectbox('2. What is your gender?', 
+st.write("2. What is your gender?")
+gender = st.selectbox('Gender', 
                       ('select', 'Male', 'Female', 'Other', 'Prefer not to say'))
 
 if gender == 'select': 
@@ -79,8 +87,9 @@ brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png',
 
 selected = []
 checkboxes = []
-st.write('3. Please select the brands and products you would like to review. (Maximum of 3)')
-st.write('Select brands:')
+st.subheader("Product Review Selection ✔️")
+st.write("You may choose up to 3 products to review. Please select the brands first then the products.")
+st.write('3. Select brands:')
 # putting checkboxes w logos as columns
 rows = []
 for r in range(7):
@@ -107,7 +116,8 @@ for c in checkboxes:
             options.append(f"{brand}: {item}")
         checkboxes[pos] = False
 
-selected = st.multiselect('Select Products:', options, max_selections = 3)
+st.write("4. Select Products (Maximum of 3): ")
+selected = st.multiselect('Products:', options, max_selections = 3)
 
 if len(selected) != 0:
     check += 1 
@@ -123,16 +133,9 @@ if check < 3:
     cont = st.button('Please fill up all fields', disabled = True)
 else:
     st.write("Before we proceed to the survey questions, let's play a short quiz!")
-    cont = st.button('Click to proceed')
+    cont = st.button('Click to proceed', on_click=auto_lottie('https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json'))
 if cont: 
     # Insert consumer profile information into MySQL database
     data = tuple([age, gender])
     b.insert_surveyee(data)
     st.switch_page('pages/2_📝_Mini_Quiz.py')
-
-
-
-
-
-
-

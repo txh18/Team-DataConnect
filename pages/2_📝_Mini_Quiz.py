@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_lottie import st_lottie
 import random
 import base64
 import time
@@ -40,6 +41,17 @@ def autoplay_audio(file_path: str):
         )
 autoplay_audio("game_music.mp3")
 
+# Formatting and displaying lottie
+def auto_lottie(url):
+    st_lottie(url,
+                height=170,
+                width=140,
+                speed=1,
+                loop=True)
+
+
+st.title("Stage 🥈: Mini Quiz")
+
 random.shuffle(products)
 
 if 'score' not in st.session_state:
@@ -56,7 +68,7 @@ if 'correct_answer' not in st.session_state:
 product, emoji = products[st.session_state['question_number']]
 
 if not st.session_state['options']:
-    st.session_state['question'] = f"Which brand do you think the icon {emoji} represents?"
+    st.session_state['question'] = f"Q: Which brand do you think the icon {emoji} represents?"
     st.markdown(f'<h1 style="font-size:40px;">{st.session_state["question"]}</h1>', unsafe_allow_html=True)
     wrong_answer = random.choice([p for p, e in products if p != product])
     st.session_state['options'] = [product, wrong_answer]
@@ -93,7 +105,8 @@ if answer:
             del st.session_state["question"]
             del st.session_state["question_number"]
             del st.session_state["correct_answer"]
-            time.sleep(2)
+            auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+            time.sleep(3)
             st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
     else:
         st.markdown('<h1 style="font-size:40px;">GAME OVER</h1>', unsafe_allow_html=True)
@@ -104,6 +117,10 @@ if answer:
         del st.session_state["question"]
         del st.session_state["question_number"]
         del st.session_state["correct_answer"]
-        time.sleep(2)
+        auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+        time.sleep(3)
         st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
 
+left1, mid, right1, right2 = st.columns(4)
+with right2:
+    auto_lottie('https://lottie.host/eee6ffd1-13ed-44e4-b2c6-317f84826997/x4iEck37Qp.json')
