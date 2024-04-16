@@ -99,13 +99,10 @@ if len(selected) != 0:
 else: st.error('Please select up to 3 products to review')
 
 st.write('Selected products:', ', '.join(selected))
-st.write("Before we proceed to the survey questions, let's play a short quiz game!")
 
 if "brand_product" not in st.session_state:
     st.session_state["brand_product"] = []
 st.session_state["brand_product"] = selected
-
-st.write(st.session_state)
 
 if check < 3: 
     cont = st.button('Please fill up all fields', disabled = True)

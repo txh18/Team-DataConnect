@@ -108,7 +108,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                     st.session_state.current_product = st.session_state.brand_product[0]
                     response = f"""Let's move on to the next product, which is {st.session_state.current_product[1]}
                     from {st.session_state.current_product[0]}.
-                    How would you rate {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
+                    How would you rate the {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
                     the product and 5 being very happy with the product)"""
                     st.write(response)
                     st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
