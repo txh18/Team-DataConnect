@@ -64,7 +64,7 @@ brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png',
 
 selected = []
 checkboxes = []
-st.write('3. Please select the brands and products you would like to review. (Maximum of 3)')
+st.write('3. Please select the brands and products you would like to provide feedback on. (Select up to 3)')
 st.write('Select brands:')
 # putting checkboxes w logos as columns
 rows = []
@@ -99,7 +99,7 @@ if len(selected) != 0:
 else: st.error('Please select up to 3 products to review')
 
 st.write('Selected products:', ', '.join(selected))
-st.write("Before we proceed to the survey questions, let's play a short quiz game!")
+st.write("Before we proceed to the survey questions, let's play a short quiz!")
 
 if "brand_product" not in st.session_state:
     st.session_state["brand_product"] = []
