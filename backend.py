@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 import mysql.connector
 from langchain_community.llms import Ollama
@@ -156,21 +157,44 @@ def insert_data(table_name, data, num):
     cursor.close()
     cnx.close()
 
-def rating_stage(product):
-    llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
-    template = """
-    Your job is to ask the customer questions. Please ask the customer how they find the {product}.
-    Please also ask the customer to give the {product} a rating out of 5.
-    Example:
-    products: shampoo
-    output: How much would you rate the shampoo out of 5 and could you give me some feedback on the shampoo?
-    """
-    prompt = PromptTemplate(template=template, input_variables=["product"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
-    return eval(llm_chain.invoke(input={'product': product})['text'])['description']
+# def rating_stage(product):
+#     llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
+#     template = """
+#     Your job is to ask the customer questions. Please ask the customer how they find the {product}.
+#     Please also ask the customer to give the {product} a rating out of 5.
+#     Example:
+#     products: shampoo
+#     output: How much would you rate the shampoo out of 5 and could you give me some feedback on the shampoo?
+#     """
+#     prompt = PromptTemplate(template=template, input_variables=["product"])
+#     llm_chain = LLMChain(llm=llm, prompt=prompt)
+#     return eval(llm_chain.invoke(input={'product': product})['text'])['description']
+
+def clean_product(product):
+    prod_list = product.split('_')
+    productname = prod_list.join(" ")
+    return productname
+
+def rating_response(product, rating, features):
+    num = len(features)-1
+    separator = " and "
+    features_str = separator.join(features)
+    features_str = features_str.replace(" and ", ", ", num-1)
+    response = ""
+    if rating == 1:
+        response = f"""I'm sorry that you are not very satisfied with the {product}. Can you explain why you gave such a low rating for the {product} in terms of {features_str}?"""
+    if rating == 2:
+        response = f"""Oh it's sad to hear that, can you tell me the reasons why you are unhappy with the {product} in terms of {features_str}?"""
+    if rating == 3:
+        response = f"""I see, can you share with me your thoughts on the {product} in terms of {features_str}?"""
+    if rating == 4:
+        response = f"""It seems that you are pretty satisfied with the {product}. How do you think the the {product} has fared in terms of {features_str}?"""
+    if rating == 5:
+        response = f"""That's great to hear! Can you share with me your thoughts on the {product}'s performance in terms of {features_str}?"""
+    return response
 
 def generate_dict(feedback, features_lst):
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     def create_schema(features_lst):
         schema = {"properties": {}}
         for feature in features_lst:
@@ -209,17 +233,19 @@ def get_missing_features(feature_dict):
 
 def generate_questions(product, missing_feature):
     template = """
-    Your job is to ask a question to get the customer to review about the {missing_feature} of the {selected_product}.
+    You are a survey chatbot.
+    Your job is to ask a question to get the customer who have purchased a product to review about the {missing_feature} of the {purchased_product}.
+    Ask only open-ended questions.
     
     Example:
     missing feature: price
     product: shampoo
     output: Do you think that the price that you paid for the shampoo is worth it? 
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
-    prompt = PromptTemplate(template=template, input_variables=["selected_product", "missing_feature"])
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
+    prompt = PromptTemplate(template=template, input_variables=["purchased_product", "missing_feature"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
-    questions = llm_chain({'selected_product':product, 'missing_feature': missing_feature})
+    questions = llm_chain({'purchased_product':product, 'missing_feature': missing_feature})
     return questions['text']
 
 def generate_features_questions(product, feature_dict):
@@ -230,6 +256,35 @@ def generate_features_questions(product, feature_dict):
         output_dict[i] = ques
     return(output_dict)
 
+def generate_improvement_qns(product, brand):
+    qns_list =  [f"I see! Now, what kind of improvements would you like to see in the {product} from {brand}?", 
+                 f"Moving on, are there any improvements you would like the {product} from {brand} have in the future?",
+                 f"Moving on, how do you think the {product} from {brand} can improve?"]
+    response = random.choice(qns_list)
+    return response
+
+def generate_repurchase_response(product, brand, rating):
+    template = """
+    You are a survey chatbot assistant that helps to conduct survey on consumer products while engaging the respondents.
+    The respondent would give a rating out of 5, on how likely will they repurchase the {product} from {brand}.
+    Based on the rating given, generate a customised response and ask the respondent if they have other feedbacks about it.
+
+    Consider the following as examples for output:
+        - If rating is 1, "Oh it's sad to hear that, would you like to give us any last feedback on this product for us to improve?"
+        - If rating is 2, ""Oh that's sad to hear. Do you have any more thoughts and comments about this product?"
+        - If rating is 3, "I see, do you have anything else to feedback on for this product?"
+        - If rating is 4, "Nice, any last feedback and thoughts about this product that you would like to share?
+        - If rating is 5, "That's great to hear! Any last feedback that you would like to give?"
+
+    Here is the rating: {rating}
+    Leave your response as a string.
+    Your response begins here:
+    """
+    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434", verbose=True)
+    prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
+    llm_chain = LLMChain(llm=llm, prompt=prompt)
+    response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
+    return response['text']    
 
 def is_feedback(feedback):
     template = """
@@ -243,7 +298,7 @@ def is_feedback(feedback):
     feedback: NA
     output: No
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(input_variables=["feedback"],
                         template = template)
     chain = LLMChain(llm=llm, prompt=prompt)
@@ -270,7 +325,7 @@ def responding_feedback(feedback):
     feedback: it was good, could be cheaper, smell is normal, cleans decently
     output: I'm glad that you enjoyed using the product. I understand your concerns on the price, your feedback will be taken into consideration.
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(input_variables=["feedback"],
                         template = template)
     chain = LLMChain(llm=llm, prompt=prompt)

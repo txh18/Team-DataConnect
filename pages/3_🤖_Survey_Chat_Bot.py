@@ -48,7 +48,7 @@ st.title("Survey Chatbot")
 
 # Initialize chat history
 if "messages" not in st.session_state:
-    starting_message = """ Welcome to the P&G survey interface! I am your survey assistant. """
+    starting_message = """ Hello! I am Steve, your P&G survey assistant. Let's begin the survey! """
     st.session_state.messages = [{"role": "assistant", "content": starting_message}]
 
 if "stage" not in st.session_state:
@@ -67,7 +67,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Accept user input
-if prompt := st.chat_input("Welcome to the survey interface!") or st.session_state.stage=="products" or st.session_state.stage=="rating" or st.session_state.stage=="repurchase":
+if prompt := st.chat_input("Type your response here") or st.session_state.stage=="products" or st.session_state.stage=="rating" or st.session_state.stage=="repurchase":
     st.session_state.rating_boolean = True
 
     if st.session_state.stage == "final_feedback":
@@ -84,6 +84,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.balloons()
+        
     
     if st.session_state.stage == "other_feedback":
         with st.chat_message("user"):
@@ -124,9 +125,13 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         st.session_state.responses.append(st.session_state.radio)
         
         with st.chat_message("assistant"):
+            rating = react(st.session_state.radio)
+            st.write(rating)
             with st.spinner("Thinking..."):
-                st.write(react(st.session_state.radio))
-                response = f"I see! Any other feedback for the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
+                brand = st.session_state.current_product[0]
+                product = st.session_state.current_product[1]
+                response = b.generate_repurchase_response(product, brand, rating)
+                # response = f"I see! Any other feedback for the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "other_feedback" 
@@ -139,7 +144,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = f"""I see! We will take your suggestion into consideration! Next, how likely will you repurchase the
+                response = f"""I see, we will work on improving the product. Next, how likely will you repurchase the
                 {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
                 repurchase the product)"""
                 st.write(response)
@@ -158,7 +163,10 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 st.session_state.features_dict[current_feature] = prompt
                 del st.session_state.features_questions[current_feature]
                 if len(st.session_state.features_questions)==0:
-                    response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
+                    product = st.session_state.current_product[1]
+                    brand = st.session_state.current_product[0]
+                    response = b.generate_improvement_qns(product, brand)
+                    # response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
                     st.session_state.stage = "improvements"  
                     for f in st.session_state.features_lst:
                         st.session_state.responses.append(st.session_state.features_dict[f])
@@ -185,11 +193,11 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
                 features_lst = [f.strip() for f in features_lst]
                 features_dict = b.generate_dict(prompt, features_lst)
                 if st.session_state.current_product[1] == "fabric_softener":
-                    product = "Fabric Softener" #For some reason, if the input is fabric_softener, the function generate_features_questions will not work
+                    product = "Fabric Softener" # For some reason, if the input is fabric_softener, the function generate_features_questions will not work
                     features_questions = b.generate_features_questions(product, features_dict)
                 else:
                     features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
-                if len(features_questions)==0: #When there are no missing features already
+                if len(features_questions)==0: # When there are no missing features already
                     response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
                     st.session_state.stage = "improvements"
                     for f in features_lst:
@@ -223,9 +231,14 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
+            rating = st.session_state.radio
+            st.write(react(rating))
             with st.spinner("Thinking..."):
-                st.write(react(st.session_state.radio))
-                response = f"Any reasons for giving the {st.session_state.current_product[1]} from {st.session_state.current_product[0]} this rating?"
+                features = df[df["product"]==st.session_state.current_product[1]]["features"].values[0]
+                features_lst = features.split(",")
+                features_lst = [f.strip() for f in features_lst]
+                response = b.rating_response(st.session_state.current_product[1], rating, features_lst)
+                # response = f"Any reasons for giving the {st.session_state.current_product[1]} from {st.session_state.current_product[0]} this rating?"
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "feedback"       
@@ -249,7 +262,7 @@ if prompt := st.chat_input("Welcome to the survey interface!") or st.session_sta
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = f"""Let's start with the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
+                response = f"""I see that you have selected {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
                 being very unhappy with the product and 5 being very happy with the product)"""
                 st.write(response)
                 st.radio("Product Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")

@@ -90,6 +90,7 @@ checkboxes = []
 st.subheader("Product Review Selection ✔️")
 st.write("You may choose up to 3 products to review. Please select the brands first then the products.")
 st.write('3. Select brands:')
+
 # putting checkboxes w logos as columns
 rows = []
 for r in range(7):
