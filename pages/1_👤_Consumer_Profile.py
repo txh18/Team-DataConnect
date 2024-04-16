@@ -79,7 +79,7 @@ brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png',
 
 selected = []
 checkboxes = []
-st.write('3. Please select the brands and products you would like to review. (Maximum of 3)')
+st.write('3. Please select the brands and products you would like to provide feedback on. (Select up to 3)')
 st.write('Select brands:')
 # putting checkboxes w logos as columns
 rows = []
