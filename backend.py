@@ -194,7 +194,7 @@ def rating_response(product, rating, features):
     return response
 
 def generate_dict(feedback, features_lst):
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     def create_schema(features_lst):
         schema = {"properties": {}}
         for feature in features_lst:
@@ -242,7 +242,7 @@ def generate_questions(product, missing_feature):
     product: shampoo
     output: Do you think that the price that you paid for the shampoo is worth it? 
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(template=template, input_variables=["purchased_product", "missing_feature"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     questions = llm_chain({'purchased_product':product, 'missing_feature': missing_feature})
@@ -280,7 +280,7 @@ def generate_repurchase_response(product, brand, rating):
     Leave your response as a string.
     Your response begins here:
     """
-    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
@@ -298,7 +298,7 @@ def is_feedback(feedback):
     feedback: NA
     output: No
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(input_variables=["feedback"],
                         template = template)
     chain = LLMChain(llm=llm, prompt=prompt)
@@ -325,7 +325,7 @@ def responding_feedback(feedback):
     feedback: it was good, could be cheaper, smell is normal, cleans decently
     output: I'm glad that you enjoyed using the product. I understand your concerns on the price, your feedback will be taken into consideration.
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
+    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(input_variables=["feedback"],
                         template = template)
     chain = LLMChain(llm=llm, prompt=prompt)
