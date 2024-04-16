@@ -56,8 +56,8 @@ if 'correct_answer' not in st.session_state:
 product, emoji = products[st.session_state['question_number']]
 
 if not st.session_state['options']:
-    st.session_state['question'] = f"What is {emoji}?"
-    st.write(st.session_state['question'])
+    st.session_state['question'] = f"Which brand do you think the icon {emoji} represents?"
+    st.markdown(f'<h1 style="font-size:40px;">{st.session_state["question"]}</h1>', unsafe_allow_html=True)
     wrong_answer = random.choice([p for p, e in products if p != product])
     st.session_state['options'] = [product, wrong_answer]
     random.shuffle(st.session_state['options'])
@@ -72,9 +72,11 @@ if col1.button(st.session_state['options'][0]):
 elif col2.button(st.session_state['options'][1]):
     answer = st.session_state['options'][1]
 
+
+
 if answer:
     if answer == st.session_state['correct_answer']:
-        st.write("Correct! 🎉")
+        st.markdown('<h1 style="font-size:30px;">Correct! 🎉</h1>', unsafe_allow_html=True)
         st.session_state['score'] += 1
         st.session_state['options'] = []
         st.session_state['question'] = ""
@@ -84,7 +86,7 @@ if answer:
             #st.experimental_rerun()
             st.rerun()
         else:
-            st.write(f"Congratulations! You answered all questions correctly. Your final score is {st.session_state['score']} out of {len(products)}.")
+            st.markdown(f'<h1 style="font-size:40px;">Congratulations! You answered all questions correctly. Your final score is {st.session_state["score"]} out of {len(products)}.</h1>', unsafe_allow_html=True)
             #st.session_state.clear()
             del st.session_state["score"]
             del st.session_state["options"]
@@ -94,8 +96,8 @@ if answer:
             time.sleep(2)
             st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
     else:
-        st.write("GAME OVER")
-        st.write(f"Your final score is {st.session_state['score']} out of {len(products)}.")
+        st.markdown('<h1 style="font-size:40px;">GAME OVER</h1>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="font-size:40px;">Your final score is {st.session_state["score"]} out of {len(products)}.</h1>', unsafe_allow_html=True)
         #st.session_state.clear()
         del st.session_state["score"]
         del st.session_state["options"]
