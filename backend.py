@@ -280,7 +280,7 @@ def generate_repurchase_response(product, brand, rating):
     Leave your response as a string.
     Your response begins here:
     """
-    llm = OllamaFunctions(model="mistral", temperature=0.5)
+    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434")
     prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
