@@ -12,7 +12,7 @@ st.set_page_config(
         'About': '# P&G Consumer Survey. This is a survey aimed at collecting consumer feedback to better improve P&G\'s products. Thank you for your help! 😊 '}
 )
 
-st.header('P&G Consumer Feedback Survey', divider='blue')
+st.header('P&G Consumer Feedback 🎮', divider='blue')
 
 
 # To set background
@@ -42,29 +42,34 @@ def autoplay_audio(file_path: str):
             md,
             unsafe_allow_html=True,
         )
-autoplay_audio("game_music.mp3")
 
 # Custom robot rain animation
 def robot_rain():
     rain(
-        emoji = "🤖",
-        font_size = 54,
+        emoji = "🎮",
+        font_size = 20,
         falling_speed = 10,
         animation_length = 1
     )
 
 # Including robot animation
-# lottie_url = 'https://assets5.lottiefiles.com/packages/lf20_V9t630.json'
 # st_lottie(lottie_url, key="user")
 
-robot_url = 'https://lottie.host/f0d1c12b-0ae9-495c-943c-c7949c331928/xUGcwnw9eA.json'
-st_lottie(robot_url)
+left1, left2, mid, right1, right2 = st.columns(5)
+with mid:
+    robot_url = 'https://lottie.host/ede56419-ab2a-482a-adaa-2c92c4d42cbb/eYCFYEqZ1z.json'
+    st_lottie(robot_url,
+            height=170,
+            width=140,
+            speed=1,
+            loop=True)
 robot_rain()
 
-chat = st.chat_message("ai", avatar="🤖")
-chat.write("Are you ready?")
+#chat = st.chat_message("ai", avatar="🤖")
+#chat.write("Are you ready?")
 if st.button(label='START', help='click to begin', type='primary', use_container_width = True):
     st.balloons()
     time.sleep(1)
     st.switch_page('pages/1_👤_Consumer_Profile.py')
 
+autoplay_audio("game_music.mp3")
