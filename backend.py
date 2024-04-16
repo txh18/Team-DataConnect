@@ -193,7 +193,7 @@ def rating_response(product, rating, features):
         response = f"""That's great to hear! Can you share with me your thoughts on the {product}'s performance in terms of {features_str}?"""
     return response
 
-def generate_dict(features_lst, feedback):
+def generate_dict(feedback, features_lst):
     llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434")
     def create_schema(features_lst):
         schema = {"properties": {}}
@@ -206,23 +206,22 @@ def generate_dict(features_lst, feedback):
     result = chain.run(feedback) #Convert from a string to a list
     def modify_outputs(features_lst, result):
         new_result = {}
-        if len(result)!=0: #if the list is not empty
-            for dic in result:
-                if len(dic)!=0: #if the dictionary is not empty
-                    for feature in dic:
-                        if feature not in new_result:
-                            if dic[feature]=="not mentioned in the passage" or dic[feature]==None or dic[feature]=={}:
-                                new_result[feature] = ""
-                            elif type(dic[feature])==dict: #the dic[feature] here is not an empty dictionary
-                                dic[feature] = list(dic[feature].values())[0]
-                            else:
-                                new_result[feature] = dic[feature]
+        for dic in result:
+            for feature in dic:
+                if feature not in new_result:
+                    if type(dic[feature])==dict:
+                        dic[feature] = list(dic[feature].values())[0]
+                    if dic[feature]=="not mentioned in the passage" or dic[feature]==None:
+                        new_result[feature] = ""
+                    else:
+                        new_result[feature] = dic[feature]
         for feature in features_lst:
             if feature not in new_result:
                 new_result[feature] = ""
         return new_result
     dic = modify_outputs(features_lst, result)
     return dic
+
 
 def get_missing_features(feature_dict):
     missing_features = []
