@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_lottie import st_lottie
 import backend as b
 import random
 import base64
@@ -41,10 +42,23 @@ def react(rating):
     else:
         return random.choice(bad)      
 
+# Formatting and displaying lottie
+def auto_lottie(url):
+    st_lottie(url,
+                height=100,
+                width=100,
+                speed=1,
+                loop=True)
+
+
 # Create dataframe
 df = b.create_df()
-    
-st.title("Survey Chatbot")
+
+#st.title("Stage 🥉: Survey Chatbot")
+col1, col2 = st.columns([0.85, 0.15])
+with col1: st.title("Stage 🥉: Survey Chatbot")
+with col2: auto_lottie("https://lottie.host/f997900a-cd88-4aab-a8a1-0f54d279067e/VNK95claf0.json")
+
 
 # Initialize chat history
 if "messages" not in st.session_state:
