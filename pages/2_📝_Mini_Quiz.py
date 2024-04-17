@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_lottie import st_lottie
 import random
 import base64
 import time
@@ -48,6 +49,19 @@ def autoplay_audio(file_path: str):
             unsafe_allow_html=True,
         )
 autoplay_audio("game_music.mp3")
+
+# Formatting and displaying lottie
+def auto_lottie(url):
+    st_lottie(url,
+                height=170,
+                width=140,
+                speed=1,
+                loop=True)
+
+
+st.title("Stage 🥈: Mini Quiz")
+
+random.shuffle(products)
 
 if 'score' not in st.session_state:
     st.session_state['score'] = 0
@@ -101,7 +115,8 @@ if answer:
             del st.session_state["options"]
             del st.session_state["question"]
             del st.session_state["correct_answer"]
-            time.sleep(2)
+            auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+            time.sleep(3)
             st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
     else:
         st.markdown('<h1 style="font-size:40px;">GAME OVER</h1>', unsafe_allow_html=True)
@@ -110,5 +125,10 @@ if answer:
         del st.session_state["options"]
         del st.session_state["question"]
         del st.session_state["correct_answer"]
-        time.sleep(2)
+        auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+        time.sleep(3)
         st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
+
+col1, col2, col3, col4 = st.columns(4)
+with col4:
+    auto_lottie('https://lottie.host/eee6ffd1-13ed-44e4-b2c6-317f84826997/x4iEck37Qp.json')
