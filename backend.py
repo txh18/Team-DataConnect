@@ -194,7 +194,7 @@ def rating_response(product, rating, features):
     return response
 
 def generate_dict(feedback, features_lst):
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
+    llm = OllamaFunctions(model="mistral", temperature=0)# base_url="http://ollama-container:11434", verbose=True)
     def create_schema(features_lst):
         schema = {"properties": {}}
         for feature in features_lst:
@@ -206,15 +206,17 @@ def generate_dict(feedback, features_lst):
     result = chain.run(feedback) #Convert from a string to a list
     def modify_outputs(features_lst, result):
         new_result = {}
-        for dic in result:
-            for feature in dic:
-                if feature not in new_result:
-                    if type(dic[feature])==dict:
-                        dic[feature] = list(dic[feature].values())[0]
-                    if dic[feature]=="not mentioned in the passage" or dic[feature]==None:
-                        new_result[feature] = ""
-                    else:
-                        new_result[feature] = dic[feature]
+        if len(result)!=0: #if the list is not empty
+            for dic in result:
+                if len(dic)!=0: #if the dictionary is not empty
+                    for feature in dic:
+                        if feature not in new_result:
+                            if dic[feature]=="not mentioned in the passage" or dic[feature]==None or dic[feature]=={}:
+                                new_result[feature] = ""
+                            elif type(dic[feature])==dict: #the dic[feature] here is not an empty dictionary
+                                dic[feature] = list(dic[feature].values())[0]
+                            else:
+                                new_result[feature] = dic[feature]
         for feature in features_lst:
             if feature not in new_result:
                 new_result[feature] = ""
@@ -242,7 +244,7 @@ def generate_questions(product, missing_feature):
     product: shampoo
     output: Do you think that the price that you paid for the shampoo is worth it? 
     """
-    llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
+    llm = OllamaFunctions(model="mistral", temperature=0) #, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(template=template, input_variables=["purchased_product", "missing_feature"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     questions = llm_chain({'purchased_product':product, 'missing_feature': missing_feature})
@@ -280,7 +282,7 @@ def generate_repurchase_response(product, brand, rating):
     Leave your response as a string.
     Your response begins here:
     """
-    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434", verbose=True)
+    llm = OllamaFunctions(model="mistral", temperature=0.5) # base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
