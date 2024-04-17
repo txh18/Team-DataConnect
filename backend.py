@@ -188,7 +188,7 @@ def rating_response(product, rating, features):
     if rating == 3:
         response = f"""I see, can you share with me your thoughts on the {product} in terms of {features_str}?"""
     if rating == 4:
-        response = f"""It seems that you are pretty satisfied with the {product}. How do you think the the {product} has fared in terms of {features_str}?"""
+        response = f"""It seems that you are pretty satisfied with the {product}. How do you think the {product} has fared in terms of {features_str}?"""
     if rating == 5:
         response = f"""That's great to hear! Can you share with me your thoughts on the {product}'s performance in terms of {features_str}?"""
     return response
