@@ -55,7 +55,7 @@ def auto_lottie(url):
                 loop=True)
 
 
-# Create dataframe
+# Load the dataframe that contains the products and the features
 df = b.create_df()
 
 #st.title("Stage 🥉: Survey Chatbot")
@@ -69,6 +69,7 @@ if "messages" not in st.session_state:
     starting_message = """ Hello! I am Steve, your P&G survey assistant. Let's begin the survey! """
     st.session_state.messages = [{"role": "assistant", "content": starting_message}]
 
+# Initialize stage of the survey, this helps to keep track of the stage of the survey.
 if "stage" not in st.session_state:
     st.session_state.stage = "products"
 
@@ -127,15 +128,21 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                if len(st.session_state.brand_product)==0: # No more products in the brand_product list
+
+                # No more products in the brand_product list
+                if len(st.session_state.brand_product)==0: 
                     response = "Before we end the survey, any last feedback?"
                     st.write(response)  
                     st.session_state.stage = "final_feedback"
-                else: #Still got products in the brand_product list
+
+                #Still got products in the brand_product list
+                else: 
                     st.session_state.current_product = st.session_state.brand_product[0]
-                    response = f"""Let's move on to the next product, which is {st.session_state.current_product[1]}
-                    from {st.session_state.current_product[0]}.
-                    How would you rate the {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
+                    brand = st.session_state.current_product[0]
+                    product = ' '.join(st.session_state.current_product[1].split("_"))
+                    response = f"""Let's move on to the next product, which is {product}
+                    from {brand}.
+                    How would you rate the {product} out of 7? (1 being very unhappy with 
                     the product and 7 being very happy with the product)"""
                     st.write(response)
                     st.radio("Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
@@ -155,7 +162,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
             st.write(rating)
             with st.spinner("Thinking..."):
                 brand = st.session_state.current_product[0]
-                product = st.session_state.current_product[1]
+                product = ' '.join(st.session_state.current_product[1].split("_"))
                 response = b.generate_repurchase_response(product, brand, rating)
                 # response = f"I see! Any other feedback for the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
                 st.write(response)
@@ -170,8 +177,11 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
+
+                product = ' '.join(st.session_state.current_product[1].split("_"))
+                brand = st.session_state.current_product[0]
                 response = f"""I see, we will work on improving the product. Next, how likely will you repurchase the
-                {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 7 being very likely to 
+                {product} from {brand} on a scale of 1 to 7? (1 being very unlikely to repurchase the product and 7 being very likely to 
                 repurchase the product)"""
                 st.write(response)
                 st.radio("Repurchase Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
@@ -186,10 +196,14 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 current_feature = list(st.session_state.features_questions.keys())[0]
+
+                # Store the user's response into features_dict
                 st.session_state.features_dict[current_feature] = prompt
                 del st.session_state.features_questions[current_feature]
+
+                # When all the features have been mentioned by the user
                 if len(st.session_state.features_questions)==0:
-                    product = st.session_state.current_product[1]
+                    product = ' '.join(st.session_state.current_product[1].split("_"))
                     brand = st.session_state.current_product[0]
                     response = b.generate_improvement_qns(product, brand)
                     # response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
@@ -214,31 +228,53 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
+
+                # Get the predefined list of features for the product 
                 features = df[df["product"]==st.session_state.current_product[1]]["features"].values[0]
                 features_lst = features.split(",")
                 features_lst = [f.strip() for f in features_lst]
+
+                # generates features_dict, where each key is a feature and each value is the information extracted from the user's feedback relevant to that feature
                 features_dict = b.generate_dict(prompt, features_lst)
+
+                # generates the features_questions dictionary, where each key is a feature of the product not mentioned by the user's first feedback but is inside the predefined features list
+                # and each value is a question relevant to that feature that the bot wants to ask the user
                 if st.session_state.current_product[1] == "fabric_softener":
                     product = "Fabric Softener" # For some reason, if the input is fabric_softener, the function generate_features_questions will not work
                     features_questions = b.generate_features_questions(product, features_dict)
                 else:
                     features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
-                if len(features_questions)==0: # When there are no missing features already
-                    response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
+                
+                # When there are no missing features, move on to the next stage
+                if len(features_questions)==0: 
+                    product = ' '.join(st.session_state.current_product[1].split("_"))
+                    brand = st.session_state.current_product[0]
+                    response = b.generate_improvement_qns(product, brand)
+                    #response = f"I see! Now, what kind of improvements would you like to see in the {displayed_product} from {st.session_state.current_product[0]}?"
                     st.session_state.stage = "improvements"
+
+                    # Adds the extracted information from user's feedback in the features_dict to the responses variable
                     for f in features_lst:
                         st.session_state.responses.append(features_dict[f])
                 else:
-                    response = list(features_questions.values())[0] #Get the first question from the dictionary
+                    # Get the first question from the features_questions dictionary
+                    response = list(features_questions.values())[0] 
+
+                    # Initialize features_questions variable
                     if "features_questions" not in st.session_state:
                         st.session_state.features_questions = []
                     st.session_state.features_questions = features_questions
+
+                    # Initialize features_dict variable
                     if "features_dict" not in st.session_state:
                         st.session_state.features_dict = []
                     st.session_state.features_dict = features_dict
+
+                    # Initialize features_lst variable
                     if "features_lst" not in st.session_state:
                         st.session_state.features_lst = []
                     st.session_state.features_lst = features_lst
+
                     st.session_state.stage = "more_feedback"
                 st.write(response)
       
@@ -247,14 +283,19 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         st.session_state.stage = "more_feedback"
 
     if st.session_state.stage == "rating" and st.session_state.rating_boolean:
+
+        # Display user response in chat message container
         with st.chat_message("user"):
             st.markdown(st.session_state.radio)
+        # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": st.session_state.radio})
         
+        # Initialize the response variable, which will be used to keep track of user's responses.
+        # These will be stored in the mySQL database later
         if "responses" not in st.session_state:
             st.session_state.responses = []
-        st.session_state.responses = [st.session_state.current_product[0], st.session_state.radio] #These will be stored in the database later
-        
+        st.session_state.responses = [st.session_state.current_product[0], st.session_state.radio] 
+
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             rating = st.session_state.radio
@@ -270,6 +311,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         st.session_state.stage = "feedback"       
         
     if st.session_state.stage == "products":
+
         # Change the st.session_state.brand_product variable to another format
         brand_product = st.session_state.brand_product
         new_brand_product = []
@@ -288,7 +330,11 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = f"""I see that you have selected {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
+
+                #Removes the underscore in the product name
+                brand = st.session_state.current_product[0]
+                product = ' '.join(st.session_state.current_product[1].split("_"))
+                response = f"""I see that you have selected {product} from {brand}! How would you rate the {product} out of 7? (1
                 being very unhappy with the product and 7 being very happy with the product)"""
                 st.write(response)
                 st.radio("Product Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
