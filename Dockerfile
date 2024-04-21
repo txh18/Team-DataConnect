@@ -16,4 +16,5 @@ RUN if [ "$(uname)" = "Linux" ]; then \
     fi
 
 # Command 
-CMD ["streamlit", "run", "App.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "App.py", "--client.showSidebarNavigation=False", "--server.port=8501", "--server.address=0.0.0.0"]
+
