@@ -1,7 +1,12 @@
 import streamlit as st
+from streamlit_lottie import st_lottie
 import backend as b
 import random
 import base64
+import time
+import keyboard
+import os
+import psutil
 
 # To set background
 def get_img_as_base64(file):
@@ -41,10 +46,23 @@ def react(rating):
     else:
         return random.choice(bad)      
 
+# Formatting and displaying lottie
+def auto_lottie(url):
+    st_lottie(url,
+                height=100,
+                width=100,
+                speed=1,
+                loop=True)
+
+
 # Create dataframe
 df = b.create_df()
-    
-st.title("Survey Chatbot")
+
+#st.title("Stage 🥉: Survey Chatbot")
+col1, col2 = st.columns([0.85, 0.15])
+with col1: st.title("Stage 🥉: Survey Chatbot")
+with col2: auto_lottie("https://lottie.host/f997900a-cd88-4aab-a8a1-0f54d279067e/VNK95claf0.json")
+
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -84,7 +102,15 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.balloons()
-        
+        st.toast("App closing in a few seconds")
+        # Give a bit of delay for user experience
+        time.sleep(5)
+        # Close streamlit browser tab
+        keyboard.press_and_release('ctrl+w')
+        # Terminate streamlit python process
+        pid = os.getpid()
+        p = psutil.Process(pid)
+        p.terminate()
     
     if st.session_state.stage == "other_feedback":
         with st.chat_message("user"):
@@ -110,9 +136,9 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                     response = f"""Let's move on to the next product, which is {st.session_state.current_product[1]}
                     from {st.session_state.current_product[0]}.
                     How would you rate the {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
-                    the product and 5 being very happy with the product)"""
+                    the product and 7 being very happy with the product)"""
                     st.write(response)
-                    st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                    st.radio("Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
                     st.session_state.stage = "rating"
                     st.session_state.rating_boolean = False #so that we will not go to the rating stage straight away
                          
@@ -145,10 +171,10 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = f"""I see, we will work on improving the product. Next, how likely will you repurchase the
-                {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
+                {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 7 being very likely to 
                 repurchase the product)"""
                 st.write(response)
-                st.radio("Repurchase Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Repurchase Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "repurchase"      
             
@@ -263,9 +289,9 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = f"""I see that you have selected {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
-                being very unhappy with the product and 5 being very happy with the product)"""
+                being very unhappy with the product and 7 being very happy with the product)"""
                 st.write(response)
-                st.radio("Product Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Product Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response}) 
         st.session_state.stage = "rating"
 
