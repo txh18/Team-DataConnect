@@ -5,6 +5,8 @@ import backend as b
 import base64
 import time
 
+# Set up database
+b.csv_to_mysql()
 
 # To set background
 def get_img_as_base64(file):
