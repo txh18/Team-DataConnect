@@ -41,7 +41,7 @@ autoplay_audio("game_music.mp3")
 def react(rating):
     good = ["😁", "😄", "🥳", "😊", "😎"]
     bad = ["🥺", "😓", "🥹", "😭"]
-    if rating >= 3:
+    if rating >= 4:
         return random.choice(good)
     else:
         return random.choice(bad)      

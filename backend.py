@@ -164,15 +164,19 @@ def rating_response(product, rating, features):
     features_str = features_str.replace(" and ", ", ", num-1)
     response = ""
     if rating == 1:
-        response = f"""I'm sorry that you are not very satisfied with the {product}. Can you explain why you gave such a low rating for the {product} in terms of {features_str}?"""
+        response = f"""I'm sorry to hear that you are not satisfied with the {product}. Could you please elaborate on what specifically didn't meet your expectations for the {product} in terms of {features_str}?"""
     if rating == 2:
-        response = f"""Oh it's sad to hear that, can you tell me the reasons why you are unhappy with the {product} in terms of {features_str}?"""
+        response = f"""Oh it's sad to hear that your experience wasn't ideal, can you tell me the reasons why you are unhappy with the {product} in terms of {features_str}?"""
     if rating == 3:
-        response = f"""I see, can you share with me your thoughts on the {product} in terms of {features_str}?"""
+        response = f"""I see, can you share with me the reasons why you gave such a low rating for the {product} in terms of {features_str}?"""
     if rating == 4:
-        response = f"""It seems that you are pretty satisfied with the {product}. How do you think the {product} has fared in terms of {features_str}?"""
+        response = f"""Thank you for your rating! Can you share with me your thoughts on the {product} in terms of {features_str}?"""
     if rating == 5:
+        response = f"""Thank you for the positive feedback!  Glad to know that you are pretty satisfied with the {product}. How do you think the the {product} has fared in terms of {features_str}?"""
+    if rating == 6:
         response = f"""That's great to hear! Can you share with me your thoughts on the {product}'s performance in terms of {features_str}?"""
+    if rating == 7:
+        response = f"""Yay! Glad that you are satisfied with the {product}. Can you share with me your thoughts on the {product}'s performance in terms of {features_str}?"""
     return response
 
 def generate_dict(feedback, features_lst):
@@ -250,25 +254,27 @@ def generate_improvement_qns(product, brand):
 def generate_repurchase_response(product, brand, rating):
     template = """
     You are a survey chatbot assistant that helps to conduct survey on consumer products while engaging the respondents.
-    The respondent would give a rating out of 5, on how likely will they repurchase the {product} from {brand}.
+    The respondent would give a rating out of 7, on how likely will they repurchase the {product} from {brand}.
     Based on the rating given, generate a customised response and ask the respondent if they have other feedbacks about it.
 
     Consider the following as examples for output:
         - If rating is 1, "Oh it's sad to hear that, would you like to give us any last feedback on this product for us to improve?"
         - If rating is 2, ""Oh that's sad to hear. Do you have any more thoughts and comments about this product?"
         - If rating is 3, "I see, do you have anything else to feedback on for this product?"
+        - If rating is 4, "I see, do you have anything else to feedback on for this product?"
         - If rating is 4, "Nice, any last feedback and thoughts about this product that you would like to share?
         - If rating is 5, "That's great to hear! Any last feedback that you would like to give?"
+        - If rating is 6, "Yay! Glad to hear that. Any last feedback you would like to give?
 
     Here is the rating: {rating}
     Leave your response as a string.
     Your response begins here:
     """
-    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434", verbose=True)
+    llm = OllamaFunctions(model="mistral", temperature=0.5)
     prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
-    return response['text']    
+    return response['text']       
 
 def is_feedback(feedback):
     template = """
