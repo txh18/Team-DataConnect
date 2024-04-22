@@ -136,7 +136,7 @@ def insert_surveyee(data):
 def get_row():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101ddata')
+        database='dsa3101data')
     cursor = cnx.cursor()
     query = "SELECT id FROM surveyee ORDER BY id DESC LIMIT 1"
     cursor.execute(query)
@@ -271,7 +271,7 @@ def generate_repurchase_response(product, brand, rating):
     Leave your response as a string.
     Your response begins here:
     """
-    llm = OllamaFunctions(model="mistral", temperature=0.5)
+    llm = OllamaFunctions(model="mistral", temperature=0.5, base_url="http://ollama-container:11434", verbose=True)
     prompt = PromptTemplate(template=template, input_variables=["product", "brand", "rating"])
     llm_chain = LLMChain(llm=llm, prompt=prompt)
     response = llm_chain({'product':product, 'brand': brand, 'rating': rating})
