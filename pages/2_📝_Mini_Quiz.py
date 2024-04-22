@@ -5,20 +5,20 @@ import base64
 import time
 
 products = [
-    ("Tide", "🧺"),
-    ("Pampers", "👶"),
-    ("Gillette", "🪒"),
-    ("Oral-B", "🦷"),
-    ("Pantene", "💇"),
-    ("Bounty", "🧻"),
-    ("Charmin", "🚽"),
-    ("Dawn", "🧽"),
-    ("Febreze", "🌸"),
-    ("Gain", "🧴"),
-    ("Head & Shoulders", "🚿"),
-    ("Olay", "💄"),
-    ("Oral-B", "🪥"),
-    ("Vicks", "🤧"),
+    ("BrandA", "🧺"),
+    ("BrandB", "👶"),
+    ("BrandC", "🪒"),
+    ("BrandD", "🦷"),
+    ("BrandE", "💇"),
+    ("BrandF", "🧻"),
+    ("BrandG", "🚽"),
+    ("BrandH", "🧽"),
+    ("BrandI", "🌸"),
+    ("BrandJ", "🧴"),
+    ("BrandK", "🚿"),
+    ("BrandL", "💄"),
+    ("BrandM", "🪥"),
+    ("BrandN", "🤧"),
 ]
 
 # To set background
