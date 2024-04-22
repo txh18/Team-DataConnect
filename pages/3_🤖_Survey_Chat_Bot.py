@@ -66,7 +66,7 @@ with col2: auto_lottie("https://lottie.host/f997900a-cd88-4aab-a8a1-0f54d279067e
 
 # Initialize chat history
 if "messages" not in st.session_state:
-    starting_message = """ Hello! I am Steve, your P&G survey assistant. Let's begin the survey! """
+    starting_message = """ Hello! I am Steve, your survey assistant. Let's begin the survey! """
     st.session_state.messages = [{"role": "assistant", "content": starting_message}]
 
 # Initialize stage of the survey, this helps to keep track of the stage of the survey.
@@ -304,8 +304,8 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                 features = df[df["product"]==st.session_state.current_product[1]]["features"].values[0]
                 features_lst = features.split(",")
                 features_lst = [f.strip() for f in features_lst]
-                response = b.rating_response(st.session_state.current_product[1], rating, features_lst)
-                # response = f"Any reasons for giving the {st.session_state.current_product[1]} from {st.session_state.current_product[0]} this rating?"
+                product = ' '.join(st.session_state.current_product[1].split("_"))
+                response = b.rating_response(product, rating, features_lst)
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "feedback"       
