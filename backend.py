@@ -55,7 +55,7 @@ def csv_to_mysql():
 
     # Create a table for other_feedback
     create_feedback_table = """
-    CREATE TABLE IF NOT EXISTS feeback (
+    CREATE TABLE IF NOT EXISTS feedback (
         id INT,
         other_feedback VARCHAR(1000)
     )
@@ -73,11 +73,11 @@ def csv_to_mysql():
     # Define and execute the CREATE TABLE statement for all product types
     for i in range(len(product_types)):
         product = product_types[i]
-        product = product.lower().replace("-"," ").replace(" ","_").replace("&","and")
+        product = '`' + product + '`'
         features = df.iloc[:, 1][i].split(', ')
         ft = ''
         for j in features:
-            ft = ft +'\t' + j.lower().replace(" ","_") + ' VARCHAR(1000), \n'
+            ft = ft +'\t' + '`' + j + '`' + ' VARCHAR(1000), \n'
         create_product_table = """
         CREATE TABLE IF NOT EXISTS """ + product + """ (
             id INT,
