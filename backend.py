@@ -157,24 +157,6 @@ def insert_data(table_name, data, num):
     cursor.close()
     cnx.close()
 
-# def rating_stage(product):
-#     llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
-#     template = """
-#     Your job is to ask the customer questions. Please ask the customer how they find the {product}.
-#     Please also ask the customer to give the {product} a rating out of 5.
-#     Example:
-#     products: shampoo
-#     output: How much would you rate the shampoo out of 5 and could you give me some feedback on the shampoo?
-#     """
-#     prompt = PromptTemplate(template=template, input_variables=["product"])
-#     llm_chain = LLMChain(llm=llm, prompt=prompt)
-#     return eval(llm_chain.invoke(input={'product': product})['text'])['description']
-
-def clean_product(product):
-    prod_list = product.split('_')
-    productname = prod_list.join(" ")
-    return productname
-
 def rating_response(product, rating, features):
     num = len(features)-1
     separator = " and "

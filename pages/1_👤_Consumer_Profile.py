@@ -80,10 +80,7 @@ else: check += 1
 st.write('You selected:', gender)
 
 brand_names = b.get_brands()
-brand_logos = ['Pampers.png', 'Downy.png', 'Gain.jpg', 'Tide.png', 'Bounty.png', 'Charmin.png', 
-               'Always.jpg', 'This_is_L..jpg', 'Gillette.png', 'Venus.png', 'Pantene.png', 
-               'head & shoulders.png', 'febreze.png', 'ambi-pur.png', 'Dawn.jpg', 'Oral-B.png',
-               'Crest.jpg', 'Olay.png', 'Native.png']
+brand_logos = ['A.png', 'B.png', 'C.png', 'D.png', 'E.png', 'F.png']
 
 selected = []
 checkboxes = []
@@ -93,7 +90,7 @@ st.write('3. Select brands:')
 
 # putting checkboxes w logos as columns
 rows = []
-for r in range(7):
+for r in range(2):
     rows.append(st.columns(3))
 
 for brand in brand_names:

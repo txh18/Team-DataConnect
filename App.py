@@ -6,14 +6,13 @@ import base64
 
 #page config
 st.set_page_config(
-    page_title='Welcome to P&G Survey!',
+    page_title='Welcome to Company Survey!',
     page_icon = '🤖',
     menu_items = {
-        'About': '# P&G Consumer Survey. This is a survey aimed at collecting consumer feedback to better improve P&G\'s products. Thank you for your help! 😊 '}
+        'About': '# Company Consumer Survey. This is a survey aimed at collecting consumer feedback to better improve P&G\'s products. Thank you for your help! 😊 '}
 )
 
-st.header('P&G Consumer Feedback 🎮', divider='blue')
-
+st.header('Company Consumer Feedback 🎮', divider='blue')
 
 # To set background
 def get_img_as_base64(file):
