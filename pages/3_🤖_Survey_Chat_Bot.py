@@ -36,7 +36,7 @@ autoplay_audio("game_music.mp3")
 def react(rating):
     good = ["😁", "😄", "🥳", "😊", "😎"]
     bad = ["🥺", "😓", "🥹", "😭"]
-    if rating >= 3:
+    if rating >= 4:
         return random.choice(good)
     else:
         return random.choice(bad)      
@@ -109,10 +109,10 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                     st.session_state.current_product = st.session_state.brand_product[0]
                     response = f"""Let's move on to the next product, which is {st.session_state.current_product[1]}
                     from {st.session_state.current_product[0]}.
-                    How would you rate {st.session_state.current_product[1]} out of 5? (1 being very unhappy with 
-                    the product and 5 being very happy with the product)"""
+                    How would you rate {st.session_state.current_product[1]} out of 7? (1 being very unhappy with 
+                    the product and 7 being very happy with the product)"""
                     st.write(response)
-                    st.radio("Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                    st.radio("Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
                     st.session_state.stage = "rating"
                     st.session_state.rating_boolean = False #so that we will not go to the rating stage straight away
                          
@@ -148,7 +148,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                 {st.session_state.current_product[1]} from {st.session_state.current_product[0]} on a scale of 1 to 5? (1 being very unlikely to repurchase the product and 5 being very likely to 
                 repurchase the product)"""
                 st.write(response)
-                st.radio("Repurchase Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Repurchase Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.stage = "repurchase"      
             
@@ -262,10 +262,10 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = f"""I see that you have selected {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 5? (1
-                being very unhappy with the product and 5 being very happy with the product)"""
+                response = f"""I see that you have selected {st.session_state.current_product[1]} from {st.session_state.current_product[0]}! How would you rate the {st.session_state.current_product[1]} out of 7? (1
+                being very unhappy with the product and 7 being very happy with the product)"""
                 st.write(response)
-                st.radio("Product Rating", [1,2,3,4,5], horizontal=True, index= None, key="radio")
+                st.radio("Product Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
         st.session_state.messages.append({"role": "assistant", "content": response}) 
         st.session_state.stage = "rating"
 
