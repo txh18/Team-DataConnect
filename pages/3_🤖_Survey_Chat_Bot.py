@@ -230,7 +230,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
             with st.spinner("Thinking..."):
 
                 # Get the predefined list of features for the product 
-                features = df[df["product"]==st.session_state.current_product[1]]["features"].values[0]
+                features = df[df["product"]=='`' + st.session_state.current_product[1] + '`']["features"].values[0]
                 features_lst = features.split(",")
                 features_lst = [f.strip() for f in features_lst]
 
@@ -239,7 +239,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
                 # generates the features_questions dictionary, where each key is a feature of the product not mentioned by the user's first feedback but is inside the predefined features list
                 # and each value is a question relevant to that feature that the bot wants to ask the user
-                if st.session_state.current_product[1] == "fabric_softener":
+                if st.session_state.current_product[1] == "Fabric Softener":
                     product = "Fabric Softener" # For some reason, if the input is fabric_softener, the function generate_features_questions will not work
                     features_questions = b.generate_features_questions(product, features_dict)
                 else:
@@ -301,7 +301,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
             rating = st.session_state.radio
             st.write(react(rating))
             with st.spinner("Thinking..."):
-                features = df[df["product"]==st.session_state.current_product[1]]["features"].values[0]
+                features = df[df["product"]=='`' + st.session_state.current_product[1] + '`']["features"].values[0]
                 features_lst = features.split(",")
                 features_lst = [f.strip() for f in features_lst]
                 product = ' '.join(st.session_state.current_product[1].split("_"))

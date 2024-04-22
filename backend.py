@@ -27,7 +27,7 @@ def get_pdts_by_brand():
         products_lst = [product.strip() for product in products_lst]
         new_products_lst = []
         for product in products_lst:
-            new_products_lst.append(product.lower().replace("-"," ").replace(" ","_").replace("&","and"))
+            new_products_lst.append(product)
         brands_products_lst.append(new_products_lst)
     return brands_products_lst
 
@@ -37,7 +37,7 @@ def csv_to_mysql():
     # Connect to the MySQL server
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
                                 host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-                                database='dsa3101db')
+                                database='dsa3101data')
 
     # Create a cursor object
     cursor = cnx.cursor()
@@ -100,15 +100,16 @@ def csv_to_mysql():
 def create_df():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
                               host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-                              database='dsa3101db')
+                              database='dsa3101data')
     cursor = cnx.cursor()
     cursor.execute("SHOW TABLES")
     df = pd.DataFrame(columns=['product','features'])
     count = -1
     for table in cursor.fetchall():
         table_name = table[0].decode()
-        if table_name != "surveyees":
+        if ((table_name != "surveyee") and (table_name != "feedback")):
             count += 1
+            table_name = '`' + table_name + '`'
             cursor.execute(f"SHOW COLUMNS FROM {table_name}")
             columns = cursor.fetchall()
             feat = [column[0] for column in columns[3:-3]]
@@ -123,7 +124,7 @@ def create_df():
 def insert_surveyee(data):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101db')
+        database='dsa3101data')
     cursor = cnx.cursor()
     query = "INSERT INTO surveyee (age,gender) VALUES (%s,%s)"
     cursor.execute(query, data)
@@ -135,7 +136,7 @@ def insert_surveyee(data):
 def get_row():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101db')
+        database='dsa3101ddata')
     cursor = cnx.cursor()
     query = "SELECT id FROM surveyee ORDER BY id DESC LIMIT 1"
     cursor.execute(query)
@@ -148,7 +149,7 @@ def get_row():
 def insert_data(table_name, data, num):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
-        database='dsa3101db')
+        database='dsa3101data')
     cursor = cnx.cursor()
     row = get_row()
     query = "INSERT INTO " + table_name + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
