@@ -239,11 +239,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
                 # generates the features_questions dictionary, where each key is a feature of the product not mentioned by the user's first feedback but is inside the predefined features list
                 # and each value is a question relevant to that feature that the bot wants to ask the user
-                if st.session_state.current_product[1] == "Fabric Softener":
-                    product = "Fabric Softener" # For some reason, if the input is fabric_softener, the function generate_features_questions will not work
-                    features_questions = b.generate_features_questions(product, features_dict)
-                else:
-                    features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
+                features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
                 
                 # When there are no missing features, move on to the next stage
                 if len(features_questions)==0: 
