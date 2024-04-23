@@ -46,7 +46,7 @@ def csv_to_mysql():
     create_surveyee_table = """
     CREATE TABLE IF NOT EXISTS surveyee (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        age VARCHAR(20) NOT NULL,
+        age INT NOT NULL,
         gender VARCHAR(20) NOT NULL
     )
     """
