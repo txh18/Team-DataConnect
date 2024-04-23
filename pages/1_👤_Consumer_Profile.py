@@ -45,7 +45,7 @@ check = 0
 slider_thumb_color_css = """
 <style>
 div.st-emotion-cache-szxv3m.ew7r33m3[role="slider"] {
-    background-color: #20244c; /* thumb color */
+    background-color: #763626; /* thumb color */
 }
 div[data-testid="stThumbValue"] {
     color: #FFFFFF; /* font color */
