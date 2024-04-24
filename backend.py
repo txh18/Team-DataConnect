@@ -152,7 +152,7 @@ def insert_data(table_name, data, num):
         database='dsa3101data')
     cursor = cnx.cursor()
     row = get_row()
-    query = "INSERT INTO " + table_name + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
+    query = "INSERT INTO " + '`' + table_name + '`' + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
     cursor.execute(query, data)
     cnx.commit()
     cursor.close()
