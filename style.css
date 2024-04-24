@@ -6,7 +6,7 @@
     margin: auto;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: auto;
-    background: #2A3132;
+    background: #E6E6FA;
 }
 
 [data-testid="stSidebar"] > div:first-child {

@@ -48,7 +48,7 @@ div.st-emotion-cache-szxv3m.ew7r33m3[role="slider"] {
     background-color: #763626; /* thumb color */
 }
 div[data-testid="stThumbValue"] {
-    color: #FFFFFF; /* font color */
+    color: #000000; /* font color */
 }
 
 </style>
