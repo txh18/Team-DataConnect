@@ -99,7 +99,7 @@ def csv_to_mysql():
 # Connect to the MySQL server and create dataframe
 def create_df():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-                              host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+                              host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
                               database='dsa3101data')
     cursor = cnx.cursor()
     cursor.execute("SHOW TABLES")
