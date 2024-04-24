@@ -197,11 +197,11 @@ def generate_dict(feedback, features_lst):
             for dic in result:
                 if len(dic)!=0: #if the dictionary is not empty
                     for feature in dic:
-                        if feature not in new_result:
+                        if feature not in new_result and feature in features_lst:
                             if dic[feature]=="not mentioned in the passage" or dic[feature]==None or dic[feature]=={}:
                                 new_result[feature] = ""
                             elif type(dic[feature])==dict: #the dic[feature] here is not an empty dictionary
-                                dic[feature] = list(dic[feature].values())[0]
+                                new_result[feature] = list(dic[feature].values())[0]
                             else:
                                 new_result[feature] = dic[feature]
         for feature in features_lst:
