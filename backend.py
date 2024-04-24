@@ -211,6 +211,11 @@ def generate_dict(feedback, features_lst):
     dic = modify_outputs(features_lst, result)
     return dic
 
+def generate_dict_empty(features_lst):
+    d={}
+    for feature in features_lst:
+        d[feature]=' '
+    return d
 
 def get_missing_features(feature_dict):
     missing_features = []
