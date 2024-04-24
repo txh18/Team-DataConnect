@@ -78,7 +78,11 @@ if "rating_boolean" not in st.session_state:
 
 # for storing rating from widget in chat message 
 if "radio" not in st.session_state:
-    st.session_state.radio = None    
+    st.session_state.radio = None   
+
+# for keeping track of the number of times the bot asks the user to give another feedback, when the user's response is not a product feedback
+if "retries" not in st.session_state:
+    st.session_state.retries = 0 
     
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -228,55 +232,82 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
+                response_to_feedback = b.response_to_feedback(prompt)
 
-                # Get the predefined list of features for the product 
-                features = df[df["product"]=='`' + st.session_state.current_product[1] + '`']["features"].values[0]
-                features_lst = features.split(",")
-                features_lst = [f.strip() for f in features_lst]
+                # If the user is not providing product feedback and the bot has not asked the user to give another feedback,
+                # the bot will ask the user to provide another feedback.
+                if list(response_to_feedback.keys())[0]!="Yes" and st.session_state.retries==0:
+                    response = list(response_to_feedback.values())[0]
+                    st.write(response)
+                    st.session_state.messages.append({"role": "assistant", "content": response})
+                    st.session_state.retries+=1
+                    
+                # If the bot asked the user to give another feedback previously or the user is providing relevant feedback
+                else: 
+                    # If the user is not providing product feedback and the bot has already asked the user to give another feedback previously,
+                    # the bot will just move on to other questions.
+                    if list(response_to_feedback.keys())[0]!="Yes" and st.session_state.retries==1:
+                        response = """Your feedback does not seem to be providing a review about our product but nevermind,
+                        let's move on to the other questions!"""
+                        st.write(response)
+                        st.session_state.messages.append({"role": "assistant", "content": response})
+                        st.session_state.retries=0 
 
-                # generates features_dict, where each key is a feature and each value is the information extracted from the user's feedback relevant to that feature
-                features_dict = b.generate_dict(prompt, features_lst)
-
-                # generates the features_questions dictionary, where each key is a feature of the product not mentioned by the user's first feedback but is inside the predefined features list
-                # and each value is a question relevant to that feature that the bot wants to ask the user
-                features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
+                    # If the user is providing product feedback
+                    else:
+                        response = list(response_to_feedback.values())[0]+" Now, let's move on to the other questions!"
+                        st.write(response)
+                        st.session_state.messages.append({"role": "assistant", "content": response})
                 
-                # When there are no missing features, move on to the next stage
-                if len(features_questions)==0: 
-                    product = ' '.join(st.session_state.current_product[1].split("_"))
-                    brand = st.session_state.current_product[0]
-                    response = b.generate_improvement_qns(product, brand)
-                    #response = f"I see! Now, what kind of improvements would you like to see in the {displayed_product} from {st.session_state.current_product[0]}?"
-                    st.session_state.stage = "improvements"
+                    # Get the predefined list of features for the product 
+                    features = df[df["product"]=='`' + st.session_state.current_product[1] + '`']["features"].values[0]
+                    features_lst = features.split(",")
+                    features_lst = [f.strip() for f in features_lst]
 
-                    # Adds the extracted information from user's feedback in the features_dict to the responses variable
-                    for f in features_lst:
-                        st.session_state.responses.append(features_dict[f])
-                else:
-                    # Get the first question from the features_questions dictionary
-                    response = list(features_questions.values())[0] 
+                    # generates features_dict, where each key is a feature and each value is the information extracted from the user's feedback relevant to that feature
+                    if list(response_to_feedback.keys())[0]!="Yes":
+                        features_dict = b.generate_dict_empty(features_lst)
+                    else:
+                        features_dict = b.generate_dict(prompt, features_lst)
 
-                    # Initialize features_questions variable
-                    if "features_questions" not in st.session_state:
-                        st.session_state.features_questions = []
-                    st.session_state.features_questions = features_questions
+                    # generates the features_questions dictionary, where each key is a feature of the product not mentioned by the user's first feedback but is inside the predefined features list
+                    # and each value is a question relevant to that feature that the bot wants to ask the user
+                    features_questions = b.generate_features_questions(st.session_state.current_product[1], features_dict) #features_questions should be a dictionary
+                
+                    # When there are no missing features, move on to the next stage
+                    if len(features_questions)==0: 
+                        product = ' '.join(st.session_state.current_product[1].split("_"))
+                        brand = st.session_state.current_product[0]
+                        response = b.generate_improvement_qns(product, brand)
+                        st.write(response)
+                        st.session_state.messages.append({"role": "assistant", "content": response})
+                        st.session_state.stage = "improvements"
 
-                    # Initialize features_dict variable
-                    if "features_dict" not in st.session_state:
-                        st.session_state.features_dict = []
-                    st.session_state.features_dict = features_dict
+                        # Adds the extracted information from user's feedback in the features_dict to the responses variable
+                        for f in features_lst:
+                            st.session_state.responses.append(features_dict[f])
+                    else:
+                        # Get the first question from the features_questions dictionary
+                        response = list(features_questions.values())[0] 
+                        st.write(response)
+                        st.session_state.messages.append({"role": "assistant", "content": response})
 
-                    # Initialize features_lst variable
-                    if "features_lst" not in st.session_state:
-                        st.session_state.features_lst = []
-                    st.session_state.features_lst = features_lst
+                        # Initialize features_questions variable
+                        if "features_questions" not in st.session_state:
+                            st.session_state.features_questions = []
+                        st.session_state.features_questions = features_questions
 
-                    st.session_state.stage = "more_feedback"
-                st.write(response)
-      
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.session_state.stage = "more_feedback"
+                        # Initialize features_dict variable
+                        if "features_dict" not in st.session_state:
+                            st.session_state.features_dict = []
+                        st.session_state.features_dict = features_dict
+
+                        # Initialize features_lst variable
+                        if "features_lst" not in st.session_state:
+                            st.session_state.features_lst = []
+                        st.session_state.features_lst = features_lst
+
+                        st.session_state.stage = "more_feedback"
 
     if st.session_state.stage == "rating" and st.session_state.rating_boolean:
 

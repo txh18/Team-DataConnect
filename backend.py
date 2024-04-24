@@ -246,7 +246,7 @@ def generate_features_questions(product, feature_dict):
     return(output_dict)
 
 def generate_improvement_qns(product, brand):
-    qns_list =  [f"I see! Now, what kind of improvements would you like to see in the {product} from {brand}?", 
+    qns_list =  [f"Next, what kind of improvements would you like to see in the {product} from {brand}?", 
                  f"Moving on, are there any improvements you would like the {product} from {brand} have in the future?",
                  f"Moving on, how do you think the {product} from {brand} can improve?"]
     response = random.choice(qns_list)
@@ -324,13 +324,13 @@ def responding_feedback(feedback):
     return(answer)
 
 
-def checking_feedback(feedback):
+def response_to_feedback(feedback):
     fb = is_feedback(feedback)
     answer = {}
-    if fb == "No":
-        out = "Your feedback does not seem to be providing a review about our product. Could you provide another feedback?"
+    if fb=="Yes":
+        out = responding_feedback(feedback)
         answer[fb] = out
     else:
-        out = responding_feedback(feedback)
+        out = "Your feedback does not seem to be providing a review about our product. Could you provide another feedback?"
         answer[fb] = out
     return(answer)
