@@ -36,7 +36,7 @@ def get_pdts_by_brand():
 def csv_to_mysql():
     # Connect to the MySQL server
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-                                host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+                                host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
                                 database='dsa3101data')
 
     # Create a cursor object
@@ -123,7 +123,7 @@ def create_df():
 # Insert data into MySQL surveyee table
 def insert_surveyee(data):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
     cursor = cnx.cursor()
     query = "INSERT INTO surveyee (age,gender) VALUES (%s,%s)"
@@ -135,7 +135,7 @@ def insert_surveyee(data):
 # Get latest row number from MySQL
 def get_row():
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
     cursor = cnx.cursor()
     query = "SELECT id FROM surveyee ORDER BY id DESC LIMIT 1"
@@ -148,7 +148,7 @@ def get_row():
 # Insert data into MySQL table
 def insert_data(table_name, data, num):
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
-        host='teamdataconnect.ch6uykso0lba.ap-southeast-2.rds.amazonaws.com',
+        host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
     cursor = cnx.cursor()
     row = get_row()
