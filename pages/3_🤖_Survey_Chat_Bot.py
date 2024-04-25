@@ -181,7 +181,6 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-
                 product = ' '.join(st.session_state.current_product[1].split("_"))
                 brand = st.session_state.current_product[0]
                 response = f"""I see, we will work on improving the product. Next, how likely will you repurchase the
@@ -210,7 +209,6 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
                     product = ' '.join(st.session_state.current_product[1].split("_"))
                     brand = st.session_state.current_product[0]
                     response = b.generate_improvement_qns(product, brand)
-                    # response = f"I see! Now, what kind of improvements would you like to see in the {st.session_state.current_product[1]} from {st.session_state.current_product[0]}?"
                     st.session_state.stage = "improvements"  
                     for f in st.session_state.features_lst:
                         st.session_state.responses.append(st.session_state.features_dict[f])
@@ -255,6 +253,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
 
                     # If the user is providing product feedback
                     else:
+                        st.session_state.retries=0
                         response = list(response_to_feedback.values())[0]+" Now, let's move on to the other questions!"
                         st.write(response)
                         st.session_state.messages.append({"role": "assistant", "content": response})
@@ -321,7 +320,8 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         # These will be stored in the mySQL database later
         if "responses" not in st.session_state:
             st.session_state.responses = []
-        st.session_state.responses = [st.session_state.current_product[0], st.session_state.radio] 
+        product_brand = st.session_state.current_product[0][-1]
+        st.session_state.responses = [product_brand, st.session_state.radio] 
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
@@ -345,7 +345,7 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         for item in brand_product:
             item = item.split(":")
             item = [i.strip() for i in item]
-            brand = item[0]
+            brand = "Brand "+item[0]
             product = item[1]
             new_brand_product.append((brand, product))
         st.session_state.brand_product = new_brand_product
