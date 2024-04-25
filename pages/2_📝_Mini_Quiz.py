@@ -19,7 +19,7 @@ products = [
     ("BrandL", "💄"),
     ("BrandM", "🪥"),
     ("BrandN", "🤧"),
-]
+]  # Initializes a list of products, each product is represented as a tuple with a brand name and an emoji.
 
 # To set background
 def get_img_as_base64(file):
@@ -32,7 +32,7 @@ img = get_img_as_base64("image.jpg")
 with open('style.css') as f:
     css = f.read().replace("{img}", img)
 
-st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
+st.markdown(f'<style>{css}</style>', unsafe_allow_html=True) # Sets the background image for the Streamlit app. It reads an image file, encodes it into base64 format, and then applies it as a background image using CSS.
 
 # Play audio after page switched
 def autoplay_audio(file_path: str):
@@ -48,7 +48,7 @@ def autoplay_audio(file_path: str):
             md,
             unsafe_allow_html=True,
         )
-autoplay_audio("game_music.mp3")
+autoplay_audio("game_music.mp3")  # Plays an audio file in the background. It reads an audio file, encodes it into base64 format, and then embeds it into the webpage using HTML audio tags.
 
 # Formatting and displaying lottie
 def auto_lottie(url):
@@ -56,7 +56,7 @@ def auto_lottie(url):
                 height=170,
                 width=140,
                 speed=1,
-                loop=True)
+                loop=True) # Displays a Lottie animation given a URL. The animation’s height, width, speed, and looping behavior can be customized.
 
 
 st.title("Stage 🥈: Mini Quiz")
@@ -74,7 +74,7 @@ if 'question' not in st.session_state:
 if 'correct_answer' not in st.session_state:
     st.session_state['correct_answer'] = ""
 if 'products' not in st.session_state:
-    st.session_state['products'] = products.copy()  # Make a copy of the original products list
+    st.session_state['products'] = products.copy()  # Sets up the quiz. It shuffles the products list and initializes several variables in the session state to track the user’s progress through the quiz.
 
 if not st.session_state['options']:
     if not st.session_state['products']:  # Check if the list is empty
@@ -97,7 +97,8 @@ if st.session_state['options']:
     if col1.button(st.session_state['options'][0]):
         answer = st.session_state['options'][0]
     elif col2.button(st.session_state['options'][1]):
-        answer = st.session_state['options'][1]
+        answer = st.session_state['options'][1]   # Generates a new question if there are no current options, or checks the user’s answer if they have selected an option. 
+                                                  # If the user’s answer is correct, the score is incremented and the question is cleared to generate a new one.
 
 
 if answer:
@@ -127,8 +128,8 @@ if answer:
         del st.session_state["correct_answer"]
         auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
         time.sleep(3)
-        st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
-
+        st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')  # Handles the end of the quiz. If the user has answered all questions correctly, a congratulations message is displayed and the user is redirected to another page. 
+                                                         # If the user answers a question incorrectly, a game over message is displayed and the user is also redirected to another page.
 col1, col2, col3, col4 = st.columns(4)
 with col4:
     auto_lottie('https://lottie.host/eee6ffd1-13ed-44e4-b2c6-317f84826997/x4iEck37Qp.json')
