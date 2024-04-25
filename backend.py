@@ -152,7 +152,7 @@ def insert_data(table_name, data, num):
         database='dsa3101data')
     cursor = cnx.cursor()
     row = get_row()
-    query = "INSERT INTO " + table_name + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
+    query = "INSERT INTO " + '`' + table_name + '`' + " VALUES (" + row + "," + "%s,"*(num-1) + "%s)"
     cursor.execute(query, data)
     cnx.commit()
     cursor.close()
@@ -268,9 +268,9 @@ def generate_repurchase_response(product, brand, rating):
         - If rating is 2, ""Oh that's sad to hear. Do you have any more thoughts and comments about this product?"
         - If rating is 3, "I see, do you have anything else to feedback on for this product?"
         - If rating is 4, "I see, do you have anything else to feedback on for this product?"
-        - If rating is 4, "Nice, any last feedback and thoughts about this product that you would like to share?
-        - If rating is 5, "That's great to hear! Any last feedback that you would like to give?"
-        - If rating is 6, "Yay! Glad to hear that. Any last feedback you would like to give?
+        - If rating is 5, "Nice, any last feedback and thoughts about this product that you would like to share?
+        - If rating is 6, "That's great to hear! Any last feedback that you would like to give?"
+        - If rating is 7, "Yay! Glad to hear that. Any last feedback you would like to give?
 
     Here is the rating: {rating}
     Leave your response as a string.
