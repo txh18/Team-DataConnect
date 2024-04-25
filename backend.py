@@ -8,16 +8,24 @@ from langchain.chains import LLMChain, create_extraction_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# Initialise an llm instance
-#llm = Ollama(model="llama2:7b-chat", format='json', temperature=0, base_url="http://ollama-container:11434", verbose=True)
-
-# Get the list of brands
 def get_brands():
+    """
+    Get the list of unique brands from the brands_products csv file
+    Inputs: NA
+    Outputs: 
+        unique_brand_lst (list): A list of unique brands
+    """
     df = pd.read_csv("brands_products.csv")
-    return list(df["Brand"].unique())
+    unique_brand_lst = list(df["Brand"].unique())
+    return unique_brand_lst
 
-# Get the list of products by brand
 def get_pdts_by_brand():
+    """
+    Get the list of products for each brand from the brands_products csv file
+    Inputs: NA
+    Outputs: 
+        brands_products_lst (list of lists): A list containing nested lists. Each nested list contains products of a particular brand.
+    """
     df = pd.read_csv("brands_products.csv")
     brands_lst = list(df["Brand"].unique())
     brands_products_lst = []
@@ -31,9 +39,13 @@ def get_pdts_by_brand():
         brands_products_lst.append(new_products_lst)
     return brands_products_lst
 
-
-# Create tables for each product in MySQL from csv file
 def csv_to_mysql():
+    """
+    Create tables for each product in MySQL from the product_info csv file
+    Inputs: NA
+    Outputs: NA
+    """
+
     # Connect to the MySQL server
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
                                 host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
@@ -96,8 +108,14 @@ def csv_to_mysql():
     cursor.close()
     cnx.close()
 
-# Connect to the MySQL server and create dataframe
 def create_df():
+    """
+    Connect to the MySQL server and create a dataframe that contains
+    two columns - products and features.
+    Inputs: NA
+    Outputs: 
+        df (pandas DataFrame): A dataframe that contains the products and features columns
+    """
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
                               host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
                               database='dsa3101data')
@@ -120,8 +138,13 @@ def create_df():
     cnx.close()
     return df
 
-# Insert data into MySQL surveyee table
 def insert_surveyee(data):
+    """
+    Insert customer profile data into MySQL surveyee table
+    Inputs: 
+        data (tuple): contains responses to the customer profiling questions
+    Outputs: NA
+    """
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
@@ -132,8 +155,13 @@ def insert_surveyee(data):
     cursor.close()
     cnx.close()
 
-# Get latest row number from MySQL
 def get_row():
+    """
+    Get the latest row number from MySQL surveyee table
+    Inputs: NA
+    Outputs: 
+        latest_number (str): contains the latest row number in the MySQL surveyee table
+    """
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
@@ -141,12 +169,20 @@ def get_row():
     query = "SELECT id FROM surveyee ORDER BY id DESC LIMIT 1"
     cursor.execute(query)
     row = cursor.fetchone()
+    latest_number = str(row[0])
     cursor.close()
     cnx.close()
-    return str(row[0])
+    return latest_number
 
-# Insert data into MySQL table
 def insert_data(table_name, data, num):
+    """
+    Insert product feedback into MySQL table
+    Inputs: 
+        table_name (str): name of the product
+        data (tuple): contains product feedback
+        num (int): length of the data tuple
+    Outputs: NA
+    """
     cnx = mysql.connector.connect(user='admin', password='dsa3101data',
         host='teamdataconnect.cp8gi20kknig.ap-southeast-1.rds.amazonaws.com',
         database='dsa3101data')
@@ -159,6 +195,15 @@ def insert_data(table_name, data, num):
     cnx.close()
 
 def rating_response(product, rating, features):
+    """
+    generates response to user's rating of the product
+    Inputs: 
+        product (str): name of the product
+        rating (int): user's rating of the product
+        features (list): list of features associated to the product
+    Outputs: 
+        response (str): chatbot's response to user's rating of the product
+    """
     num = len(features)-1
     separator = " and "
     features_str = separator.join(features)
@@ -181,6 +226,15 @@ def rating_response(product, rating, features):
     return response
 
 def generate_dict(feedback, features_lst):
+    """
+    extracts information from feedback that is relevant to the list of features and returns a dictionary
+    Inputs: 
+        feedback (str): product feedback
+        features_lst (list): list of features associated to the product
+    Outputs: 
+        dic (dictionary): the key is the feature and the corresponding value is the information extracted from the feedback that is relevant to the feature
+    """
+        
     llm = OllamaFunctions(model="mistral", temperature=0, base_url="http://ollama-container:11434", verbose=True)
     def create_schema(features_lst):
         schema = {"properties": {}}
@@ -212,12 +266,28 @@ def generate_dict(feedback, features_lst):
     return dic
 
 def generate_dict_empty(features_lst):
+    """
+    generates a dictionary where the keys are the features and the values are empty strings
+    Inputs: 
+        features_lst (list): list of features associated to a product
+    Outputs: 
+        dic (dictionary): each key is a feature and the corresponding value is an empty string
+    """
     d={}
     for feature in features_lst:
-        d[feature]=' '
+        d[feature]=""
     return d
 
 def get_missing_features(feature_dict):
+    """
+    returns a list of features that have not been mentioned in the product feedback
+    Inputs: 
+        feature_dict (dictionary): each key is a feature while its corresponding value is the 
+        information extracted from the feedback that is relevant to that feature
+    Outputs: 
+        missing_features (list): A list of features that have not been mentioned in the product feedback.
+        These features' corresponding values in the feature_dict are empty strings.
+    """
     missing_features = []
     for f in feature_dict:
         if feature_dict[f] == "":
@@ -226,6 +296,16 @@ def get_missing_features(feature_dict):
 
 
 def generate_questions(product, missing_feature):
+    """
+    generates a question to get the customer who have purchased the product to review about the missing_feature 
+    Inputs: 
+        product (str): name of the product
+        missing_feature (str): a feature that has not been mentioned in the product feedback
+    Outputs: 
+        questions['text'] (str): a question to ask the customer to get the customer to review about the product
+        in terms of the missing_feature
+    """
+        
     template = """
     You are a survey chatbot.
     Your job is to ask a question to get the customer who have purchased a product to review about the {missing_feature} of the {purchased_product}.
@@ -243,6 +323,18 @@ def generate_questions(product, missing_feature):
     return questions['text']
 
 def generate_features_questions(product, feature_dict):
+    """
+    generates a question for each missing feature and compiles them in a dictionary
+    Inputs: 
+        product (str): name of the product
+        feature_dict (dictionary): the key is the feature and the corresponding value is the 
+        information extracted from the feedback that is relevant to the feature
+    Outputs: 
+        output_dict (dictionary): each key is a feature that has not been mentioned in the product feedback
+        while its corresponding value is a question to ask the customer regarding the particular feature
+        of the product
+    """
+
     missing_features = get_missing_features(feature_dict)
     output_dict = {}
     for i in missing_features:
@@ -251,6 +343,15 @@ def generate_features_questions(product, feature_dict):
     return(output_dict)
 
 def generate_improvement_qns(product, brand):
+    """
+    randomly selects a question from the predefined list of questions to get the customer to suggest improvements
+    to the product
+    Inputs: 
+        product (str): name of the product
+        brand (str): name of the brand of the product
+    Outputs: 
+        response (str): a randomly selected question to get the customer to suggest improvements to the product
+    """
     qns_list =  [f"Next, what kind of improvements would you like to see in the {product} from {brand}?", 
                  f"Moving on, are there any improvements you would like the {product} from {brand} have in the future?",
                  f"Moving on, how do you think the {product} from {brand} can improve?"]
@@ -258,6 +359,16 @@ def generate_improvement_qns(product, brand):
     return response
 
 def generate_repurchase_response(product, brand, rating):
+    """
+    generates response to user's repurchase rating of the product
+    Inputs: 
+        product (str): name of the product
+        brand (str): name of the brand of the product
+        rating (int): user's repurchase rating of the product
+    Outputs: 
+        response (str): chatbot's response to user's repurchase rating of the product
+    """
+
     template = """
     You are a survey chatbot assistant that helps to conduct survey on consumer products while engaging the respondents.
     The respondent would give a rating out of 7, on how likely will they repurchase the {product} from {brand}.
@@ -283,6 +394,15 @@ def generate_repurchase_response(product, brand, rating):
     return response['text']       
 
 def is_feedback(feedback):
+    """
+    returns "Yes" if the user's response sounds like product feedback and "No" if the user's response  
+    does not sound like product feedback
+    Inputs: 
+        feedback (str): product feedback
+    Outputs: 
+        answer (str): "Yes" or "No"
+    """
+
     template = """
     Determine if the following feedback {feedback} sounds like a product feedback. Answer one word "Yes", if is sounds like a product feedback, answer one word "No" if it does not sound like a feedback about a product.
     Example:
@@ -290,6 +410,10 @@ def is_feedback(feedback):
     output: Yes
     Example:
     feedback: Hello, I'm fine how about you?
+    output: No
+    feedback: Hello, can you explain what you mean?
+    output: No
+    feedback: Hello, I don't quite understand your question.
     output: No
     feedback: NA
     output: No
@@ -303,6 +427,14 @@ def is_feedback(feedback):
 
 
 def responding_feedback(feedback):
+    """
+    generates response to user's product feedback
+    Inputs: 
+        feedback (str): product feedback
+    Outputs: 
+        answer (str): response to user's product feedback
+    """
+
     template = """
     Determine if the following feedback {feedback} sounds like a product feedback. 
     If it sounds like a product feedback, give a short response to this feedback. 
@@ -330,6 +462,14 @@ def responding_feedback(feedback):
 
 
 def response_to_feedback(feedback):
+    """
+    combines the outputs of is_feedback function and responding_feedback function into a dictionary
+    Inputs: 
+        feedback (str): product feedback
+    Outputs: 
+        answer (dictionary): the key is either "Yes" or "No" while the value contains the chatbot's response to the user's reply
+    """
+
     fb = is_feedback(feedback)
     answer = {}
     if fb=="Yes":
