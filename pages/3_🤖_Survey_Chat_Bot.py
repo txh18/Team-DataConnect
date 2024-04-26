@@ -4,9 +4,7 @@ import backend as b
 import random
 import base64
 import time
-import keyboard
 import os
-import psutil
 import json
 
 # To set background
@@ -114,12 +112,8 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         st.toast("App closing in a few seconds")
         # Give a bit of delay for user experience
         time.sleep(5)
-        # Close streamlit browser tab
-        keyboard.press_and_release('ctrl+w')
-        # Terminate streamlit python process
-        pid = os.getpid()
-        p = psutil.Process(pid)
-        p.terminate()
+        # Redirect to home page after survey ends
+        st.switch_page("App.py")
     
     if st.session_state.stage == "other_feedback":
         with st.chat_message("user"):
