@@ -1,5 +1,5 @@
-# Team-DataConnect
-## Interactive Survey Interface with Chatbot
+# Team-DataConnect ✨
+## Interactive Survey Interface with Chatbot 🤖
 
 A Repository for DSA3101 Project on Interactive Customer Survey Interface.
 
