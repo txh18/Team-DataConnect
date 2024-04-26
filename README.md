@@ -37,9 +37,9 @@ docker exec -it ollama-container ollama run mistral
 
 1. Open up MySQL Workbench 
 2. Create a new connection using the host endpoint link, username and password which can be found in the backend.py file. Replace the Hostname and Username with the endpoint url and user respectively. 
-![Creating a new connection](\MySQL_images\MySQL image 1.png)
+![Creating a new connection](MySQL_images/MySQL image 1.png)
 3. Click on “Test Connection” to test the connection. If the connection is successful, click “OK”. You will then be prompted to enter the password. 
-![Viewing the database](\MySQL_images\MySQL image 2.png)
+![Viewing the database](MySQL_images/MySQL image 2.png)
 
 ## Acknowledgments
 * [streamlit.io](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)
