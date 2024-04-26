@@ -11,7 +11,7 @@ In today’s consumer-centric market landscape, understanding customer preferenc
 ### Installing
 
 On your device
-* Install Docker
+* Install **Docker** 🐳
 * Clone our repository 
 
 ### Executing program
@@ -36,3 +36,4 @@ docker exec -it ollama-container ollama run mistral
 ## Acknowledgments
 * [streamlit.io](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)
 * [Langchain](https://python.langchain.com/docs/expression_language/get_started/)
+* [Ollama](https://ollama.com/library/mistral)
