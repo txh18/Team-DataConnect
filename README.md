@@ -20,7 +20,7 @@ On your device
 2. Open up command prompt
 3. Set current directory to your local repository
 ```
-cd "path-to-local-repository"
+cd "path/to/local/repository"
 ```
 4. Run the line
 ```
