@@ -3,8 +3,9 @@ from streamlit_lottie import st_lottie
 from streamlit_extras.let_it_rain import rain
 import time
 import base64
+import json
 
-#page config
+# Page configuration
 st.set_page_config(
     page_title='Welcome to Company Survey!',
     page_icon = '🤖',
@@ -51,24 +52,32 @@ def robot_rain():
         animation_length = 1
     )
 
+# Formatting and displaying lottie animation
+def auto_lottie(filepath: str):
+    with open(filepath, "r") as  f:
+        loaded = json.load(f)
+
+    st_lottie(
+        loaded,
+        height=170,
+        width=140,
+        speed=1,
+        loop=True)
+
 # Including robot animation
 # st_lottie(lottie_url, key="user")
 
 left1, left2, mid, right1, right2 = st.columns(5)
 with mid:
-    robot_url = 'https://lottie.host/ede56419-ab2a-482a-adaa-2c92c4d42cbb/eYCFYEqZ1z.json'
-    st_lottie(robot_url,
-            height=170,
-            width=140,
-            speed=1,
-            loop=True)
+    auto_lottie("welcome_robot.json")
+
+
 robot_rain()
 
-#chat = st.chat_message("ai", avatar="🤖")
-#chat.write("Are you ready?")
+# Button to start survey
 if st.button(label='START', help='click to begin', type='primary', use_container_width = True):
-    st.balloons()
-    time.sleep(1)
-    st.switch_page('pages/1_👤_Consumer_Profile.py')
+    st.balloons() # animation
+    time.sleep(1) # allow time for animation to be completed before moving to next section
+    st.switch_page('pages/1_👤_Consumer_Profile.py') # Switching to consumer profile page once user clicked on button
 
-autoplay_audio("game_music.mp3")
+autoplay_audio("game_music.mp3") 
