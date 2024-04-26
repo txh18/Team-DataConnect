@@ -4,6 +4,7 @@ import mysql
 import backend as b
 import base64
 import time
+import json
 
 # Set up database
 b.csv_to_mysql()
@@ -44,7 +45,7 @@ st.title("Stage 🥇: Consumer Profile")
 # To keep track of which fields user has filled up
 check = 0
 
-# Customising slider colour
+# Customising slider colour using css
 slider_thumb_color_css = """
 <style>
 div.st-emotion-cache-szxv3m.ew7r33m3[role="slider"] {
@@ -59,13 +60,17 @@ div[data-testid="stThumbValue"] {
 
 st.markdown(slider_thumb_color_css, unsafe_allow_html=True)
 
-# Formatting and displaying lottie
-def auto_lottie(url):
-    st_lottie(url,
-                height=170,
-                width=140,
-                speed=1,
-                loop=True)
+# Formatting and displaying lottie animation
+def auto_lottie(filepath: str):
+    with open(filepath, "r") as  f:
+        loaded = json.load(f)
+
+    st_lottie(
+        loaded,
+        height=170,
+        width=140,
+        speed=1,
+        loop=True)
 
 # Formatting subheader
 st.subheader("Surveyee Information 👤")
@@ -145,7 +150,7 @@ if check < 3:
     cont = st.button('Please fill up all fields', disabled = True)
 else:
     st.write("Before we proceed to the survey questions, let's play a short quiz!")
-    cont = st.button('Click to proceed', on_click=auto_lottie('https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json'))
+    cont = st.button('Click to proceed', on_click=auto_lottie('checked.json'))
 if cont: 
     # Insert consumer profile information into MySQL database
     data = tuple([age, gender])

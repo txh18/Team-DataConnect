@@ -7,6 +7,7 @@ import time
 import keyboard
 import os
 import psutil
+import json
 
 # To set background
 def get_img_as_base64(file):
@@ -46,22 +47,25 @@ def react(rating):
     else:
         return random.choice(bad)      
 
-# Formatting and displaying lottie
-def auto_lottie(url):
-    st_lottie(url,
-                height=100,
-                width=100,
-                speed=1,
-                loop=True)
+# Formatting and displaying lottie animation
+def auto_lottie(filepath: str):
+    with open(filepath, "r") as  f:
+        loaded = json.load(f)
 
+    st_lottie(
+        loaded,
+        height=170,
+        width=140,
+        speed=1,
+        loop=True)
 
 # Load the dataframe that contains the products and the features
 df = b.create_df()
 
-#st.title("Stage 🥉: Survey Chatbot")
+# Arranging the title together with an animation
 col1, col2 = st.columns([0.85, 0.15])
 with col1: st.title("Stage 🥉: Survey Chatbot")
-with col2: auto_lottie("https://lottie.host/f997900a-cd88-4aab-a8a1-0f54d279067e/VNK95claf0.json")
+with col2: auto_lottie("chatbot_robot.json")
 
 
 # Initialize chat history
@@ -76,11 +80,11 @@ if "stage" not in st.session_state:
 if "rating_boolean" not in st.session_state:
     st.session_state.rating_boolean = True
 
-# for storing rating from widget in chat message 
+# For storing rating from button interaction in chat message 
 if "radio" not in st.session_state:
     st.session_state.radio = None   
 
-# for keeping track of the number of times the bot asks the user to give another feedback, when the user's response is not a product feedback
+# For keeping track of the number of times the bot asks the user to give another feedback, when the user's response is not a product feedback
 if "retries" not in st.session_state:
     st.session_state.retries = 0 
     
@@ -358,18 +362,18 @@ if prompt := st.chat_input("Type your response here") or st.session_state.stage=
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
 
-                #Removes the underscore in the product name
+                # Removes the underscore in the product name
                 brand = st.session_state.current_product[0]
                 product = ' '.join(st.session_state.current_product[1].split("_"))
                 response = f"""I see that you have selected {product} from {brand}! How would you rate the {product} out of 7? (1
                 being very unhappy with the product and 7 being very happy with the product)"""
                 st.write(response)
-                st.radio("Product Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio")
+                st.radio("Product Rating", [1,2,3,4,5,6,7], horizontal=True, index= None, key="radio") # buttons for user to click to rate
         st.session_state.messages.append({"role": "assistant", "content": response}) 
         st.session_state.stage = "rating"
 
-# uncomment the following line to view session state on every response in app
-st.write(st.session_state) 
+# Uncomment the following line to view session state on every response in app
+#st.write(st.session_state) 
 
 
         

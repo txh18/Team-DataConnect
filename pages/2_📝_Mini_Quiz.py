@@ -3,6 +3,7 @@ from streamlit_lottie import st_lottie
 import random
 import base64
 import time
+import json
 
 products = [
     ("BrandA", "🧺"),
@@ -50,17 +51,22 @@ def autoplay_audio(file_path: str):
         )
 autoplay_audio("game_music.mp3")  # Plays an audio file in the background. It reads an audio file, encodes it into base64 format, and then embeds it into the webpage using HTML audio tags.
 
-# Formatting and displaying lottie
-def auto_lottie(url):
-    st_lottie(url,
-                height=170,
-                width=140,
-                speed=1,
-                loop=True) # Displays a Lottie animation given a URL. The animation’s height, width, speed, and looping behavior can be customized.
+# Formatting and displaying lottie animation
+def auto_lottie(filepath: str):
+    with open(filepath, "r") as  f:
+        loaded = json.load(f)
 
+    st_lottie(
+        loaded,
+        height=170,
+        width=140,
+        speed=1,
+        loop=True)
 
+# Title of page
 st.title("Stage 🥈: Mini Quiz")
 
+# Initiating and setting up quiz
 random.shuffle(products)
 
 if 'score' not in st.session_state:
@@ -91,6 +97,7 @@ if not st.session_state['options']:
 else:
     st.write(st.session_state['question'])
 
+# Setting up the options users can select for the quiz
 col1, col2 = st.columns(2)
 answer = None
 if st.session_state['options']:
@@ -100,7 +107,7 @@ if st.session_state['options']:
         answer = st.session_state['options'][1]   # Generates a new question if there are no current options, or checks the user’s answer if they have selected an option. 
                                                   # If the user’s answer is correct, the score is incremented and the question is cleared to generate a new one.
 
-
+# Checking user answer and keeping track of score
 if answer:
     if answer == st.session_state['correct_answer']:
         st.markdown('<h1 style="font-size:30px;">Correct! 🎉</h1>', unsafe_allow_html=True)
@@ -116,7 +123,7 @@ if answer:
             del st.session_state["options"]
             del st.session_state["question"]
             del st.session_state["correct_answer"]
-            auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+            auto_lottie("checked.json")
             time.sleep(3)
             st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')
     else:
@@ -126,10 +133,12 @@ if answer:
         del st.session_state["options"]
         del st.session_state["question"]
         del st.session_state["correct_answer"]
-        auto_lottie("https://lottie.host/7e5dfe9f-ec0f-4f8f-8797-f06b6bd0fea4/aaw25hKs6x.json")
+        auto_lottie("checked.json")
         time.sleep(3)
         st.switch_page('pages/3_🤖_Survey_Chat_Bot.py')  # Handles the end of the quiz. If the user has answered all questions correctly, a congratulations message is displayed and the user is redirected to another page. 
                                                          # If the user answers a question incorrectly, a game over message is displayed and the user is also redirected to another page.
+
+# Loading the quiz robot animation onto the interface
 col1, col2, col3, col4 = st.columns(4)
 with col4:
-    auto_lottie('https://lottie.host/eee6ffd1-13ed-44e4-b2c6-317f84826997/x4iEck37Qp.json')
+    auto_lottie('quiz_robot.json')
