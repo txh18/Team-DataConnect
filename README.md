@@ -12,7 +12,7 @@ In today’s consumer-centric market landscape, understanding customer preferenc
 
 On your device
 * Install **Docker** 🐳
-* Install **MySQL WorkBench**
+* Install **MySQL WorkBench** 🐬
 * Clone our repository into your local device
 
 ### Executing program
