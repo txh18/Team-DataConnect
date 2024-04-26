@@ -16,17 +16,17 @@ On your device
 
 ### Executing program
 
-1. Ensure that Docker Engine is running.
-2. Open up command prompt.
-3. Set current directory to your local repository.
+1. Ensure that Docker Engine is running
+2. Open up command prompt
+3. Set current directory to your local repository
 ```
 cd "path-to-local-repository"
 ```
-4. Run the line.
+4. Run the line
 ```
 docker-compose up
 ```
-5. After the containers are running, open up another command prompt window and run this line to pull the Mistral-7B model used for this project.
+5. After the containers are running, open up another command prompt window and run this line to pull the Mistral-7B model used for this project
 ```
 docker exec -it ollama-container ollama run mistral
 ```
